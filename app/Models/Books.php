@@ -9,6 +9,6 @@ class Books extends Model
 {
 
     use Filterable;
-    protected $fillable = ['added_by','title','quantity','price','tags','available'];
+    protected $fillable = ['added_by','title','quantity','price','tags','available','image_url'];
 
 }

@@ -31,13 +31,13 @@ class AuthController extends Controller
             if ($user) {
                 if (Hash::check($request->password, $user->password)) {
                     $token = $user->createToken('API TOKEN')->plainTextToken;
-                    $user->api_token = $token;
-                    return ApiResponse::success($user, 'Logged in Successfully');
+                    $data = ['user' => $user, 'token' => $token];
+                    return ApiResponse::success($data, 'Logged in Successfully');
                 } else {
-                    return ApiResponse::error('invalid credentials');
+                    return ApiResponse::error('invalid credentials',[],401);
                 }
             } else {
-                    return ApiResponse::error('invalid credentials');
+                    return ApiResponse::error('invalid credentials',[],401);
             }
         }catch (\Exception $e) {
             Log::error('Login Error', ['exception' => $e->getMessage() ]);

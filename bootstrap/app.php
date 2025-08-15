@@ -30,6 +30,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'ForceJson' => \App\Http\Middlewares\ForceJsonResponse::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'http://localhost:3000'
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 

@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Responses\ApiResponse;
 use App\Models\Books;
+use App\Models\Stocks;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
@@ -44,9 +47,10 @@ class BooksController extends Controller
                     'quantity'=>'required|integer|min:1',
                     'price'=>'required|integer|min:1',
                     'added_by' => 'required|integer',
-                    'available' => 'boolean',
+                    'available' => 'string',
                     'image_url' => 'string',
-                    'tags'     => 'array'
+                    'tags'     => 'array',
+                    'image' => 'image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
             if ($validator->fails())
@@ -56,12 +60,33 @@ class BooksController extends Controller
 
             try{
 
-                //$tags = explode(',', $request->input('tags')); // turns "php,laravel" into ['php', 'laravel']
+                $path = null;
+
+                if($request->hasFile('image'))
+                {
+                    $path = $request->file('image')->store('photos', 'public');
+                }
+                // store the file in /storage/app/public/photos
+
                 $request->merge([
-                    'tags' => json_encode($request->input('tags'))
+                    'tags' => $request->input('tags'),
+                    'image_url' => $path
                 ]);
 
-                Books::create($request->all());
+                DB::transaction(function () use ($request) {
+                      $book =  Books::create($request->all());
+
+                      Stocks::create([
+                            'book_id'       => $book->id,
+                            'user_id'       => $request->user()->id,
+                            'quantity'      => $request->input('quantity'),
+                            'added'         => $request->input('quantity'),
+                            'removed'       => 0,
+                            'description'   => 'book added'
+                      ]);
+                });
+
+
                 return ApiResponse::success([], 'Book created successfully');
             }catch(\Exception $e){
                 Log::error('Create Book Error', ['exception' => $e->getMessage() ]);
@@ -72,13 +97,11 @@ class BooksController extends Controller
 
     public function update($id, Request $request, Books $books)
     {
-
         $validator = Validator::make($request->all(),[
             'title'=>'string:255',
             'quantity'=>'integer|min:1',
             'price'=>'integer|min:1',
             'added_by' => 'integer',
-            'available' => 'boolean'
         ]);
 
         if ($validator->fails())
@@ -87,6 +110,22 @@ class BooksController extends Controller
         }
 
         try{
+
+            $path = null;
+
+            if($request->hasFile('image'))
+            {
+                $path = $request->file('image')->store('photos', 'public');
+            }
+            // store the file in /storage/app/public/photos
+
+            $request->merge([
+                'tags' => $request->input('tags'),
+                'image_url' => $path
+            ]);
+
+
+
             $book = $books->where('id', $id)->first();
             $book->update($request->all());
             return ApiResponse::success([], 'Book updated successfully');
@@ -95,6 +134,23 @@ class BooksController extends Controller
             return ApiResponse::error('An Error has occurred',500);
         }
     }
+
+
+    public function shelf($book_id)
+    {
+        try{
+            $book = Books::where('id', $book_id)->firstOrFail();
+
+            $status = $book->available ? 'unshelved' : 'shelved';
+            $book->available = !$book->available;
+            $book->save();
+            return ApiResponse::success([], "Book is $status successfully");
+        }catch(\Exception $e){
+            Log::error('Book shelve status unchanged', ['exception' => $e->getMessage() ]);
+            return ApiResponse::error('Book shelf was not changed',500);
+        }
+    }
+
 
 
 

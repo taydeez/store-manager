@@ -798,6 +798,131 @@
                     }
                 }
             }
+        },
+        "/api/stock/update": {
+            "post": {
+                "tags": [
+                    "Stocks"
+                ],
+                "summary": "Update stock for a book",
+                "description": "Adds or removes stock for a specific book and records the change in stock history.",
+                "operationId": "9196cf0e8588e4e58d79829d06b9a9cc",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "book_id",
+                                    "add",
+                                    "remove",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "book_id": {
+                                        "description": "ID of the book",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "add": {
+                                        "description": "Number of items to add",
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "remove": {
+                                        "description": "Number of items to remove",
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "description": {
+                                        "description": "Reason for stock update",
+                                        "type": "string",
+                                        "example": "Stock adjustment from main store"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Stock updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Stock updated successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "validation error"
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "example": "The book_id field is required."
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Could not update stock"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -817,6 +942,10 @@
         {
             "name": "Books",
             "description": "Books Endpoints"
+        },
+        {
+            "name": "Stocks",
+            "description": "Stock management endpoints"
         }
     ]
 }

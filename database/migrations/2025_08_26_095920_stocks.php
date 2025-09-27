@@ -16,7 +16,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('book_id');
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->integer('quantity');
+            $table->integer('grand_quantity');
+            $table->integer('main_store_quantity');
             $table->integer('added');
             $table->integer('removed');
             $table->string('description');

@@ -24,28 +24,28 @@ class BooksSeeder extends Seeder
             [
                 'title'     => 'Beautiful Book',
                 'added_by'  => 1,
-                'quantity'  => 10,
+                'quantity'  => 20,
                 'price'     => 3000,
                 'tags'      => json_encode(['main_store','new']),
             ],
             [
                 'title'     => 'The watcher',
                 'added_by'  => 1,
-                'quantity'  => 15,
+                'quantity'  => 20,
                 'price'     => 3500,
                 'tags'      => json_encode(['main_store','new']),
             ],
             [
                 'title'     => 'Quicksand Islands',
                 'added_by'  => 1,
-                'quantity'  => 40,
+                'quantity'  => 20,
                 'price'     => 7000,
                 'tags'      => json_encode(['main_store','old']),
             ],
             [
                 'title'     => 'The title should be longer just for testing purposes',
                 'added_by'  => 1,
-                'quantity'  => 35,
+                'quantity'  => 20,
                 'price'     => 1500,
                 'tags'      => json_encode(['main_store','old']),
             ]

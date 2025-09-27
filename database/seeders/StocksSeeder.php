@@ -17,7 +17,8 @@ class StocksSeeder extends Seeder
             [
                 'book_id'         => 1,
                 'user_id'         => 1,
-                'quantity'        => 20,
+                'main_store_quantity'        => 20,
+                'grand_quantity'        => 20,
                 'added'           => 20,
                 'removed'         => 0,
                 'description'     => "Book added",
@@ -25,7 +26,8 @@ class StocksSeeder extends Seeder
             [
                 'book_id'         => 2,
                 'user_id'         => 1,
-                'quantity'        => 20,
+                'main_store_quantity'        => 20,
+                'grand_quantity'        => 20,
                 'added'           => 20,
                 'removed'         => 0,
                 'description'     => "Book added",
@@ -33,7 +35,8 @@ class StocksSeeder extends Seeder
             [
                 'book_id'         => 3,
                 'user_id'         => 1,
-                'quantity'        => 20,
+                'main_store_quantity'        => 20,
+                'grand_quantity'        => 20,
                 'added'           => 20,
                 'removed'         => 0,
                 'description'     => "Book added",
@@ -41,7 +44,8 @@ class StocksSeeder extends Seeder
             [
                 'book_id'         => 4,
                 'user_id'         => 1,
-                'quantity'        => 20,
+                'main_store_quantity'        => 20,
+                'grand_quantity'        => 20,
                 'added'           => 20,
                 'removed'         => 0,
                 'description'     => "Book added",
@@ -49,7 +53,8 @@ class StocksSeeder extends Seeder
             [
                 'book_id'         => 5,
                 'user_id'         => 1,
-                'quantity'        => 20,
+                'main_store_quantity'        => 20,
+                'grand_quantity'        => 20,
                 'added'           => 20,
                 'removed'         => 0,
                 'description'     => "Book added",

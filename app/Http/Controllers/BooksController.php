@@ -30,7 +30,8 @@ class BooksController extends Controller
         public function show(int $id): JsonResponse
         {
             try {
-                $book = Books::Where('id', $id)->first();
+                $book = Books::with('latestStock')->where('id', $id)->first();
+
                 return ApiResponse::success($book);
             }catch (\Exception $e) {
                 Log::error('Get single book error', ['exception' => $e->getMessage()]);
@@ -79,13 +80,13 @@ class BooksController extends Controller
                       Stocks::create([
                             'book_id'       => $book->id,
                             'user_id'       => $request->user()->id,
-                            'quantity'      => $request->input('quantity'),
+                            'main_store_quantity'      => $request->input('quantity'),
+                            'grand_quantity'      => $request->input('quantity'),
                             'added'         => $request->input('quantity'),
                             'removed'       => 0,
                             'description'   => 'book added'
                       ]);
                 });
-
 
                 return ApiResponse::success([], 'Book created successfully');
             }catch(\Exception $e){
@@ -113,11 +114,12 @@ class BooksController extends Controller
 
             $path = null;
 
+            //TODO remove old image
+
             if($request->hasFile('image'))
             {
                 $path = $request->file('image')->store('photos', 'public');
             }
-            // store the file in /storage/app/public/photos
 
             $request->merge([
                 'tags' => $request->input('tags'),

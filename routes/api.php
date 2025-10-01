@@ -3,6 +3,7 @@
 //use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Controllers\BooksController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\StoreFrontController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -14,6 +15,11 @@ Route::middleware(['ForceJson'])->group(function () {
 
 
 Route::middleware(['auth:sanctum','ForceJson','client.auth'])->group(function () {
+
+    //users
+    Route::get('/users',[AuthController::class, 'index'])->name('users')->middleware('role:admin');
+
+
 
     //Book routes
     Route::get('/books',  [BooksController::class, 'index'])->name('books.index')->middleware('role:admin');
@@ -27,6 +33,8 @@ Route::middleware(['auth:sanctum','ForceJson','client.auth'])->group(function ()
     //Stock Management routes
     Route::post('/stock/update',  [StockController::class, 'updateStock'])->name('stock.update')->middleware('role:admin');
 
+    // Manage Store fronts
+    Route::apiResource('storefronts', StoreFrontController::class)->scoped()->middleware('role:admin');;
 
     Route::get('/admin-only', fn() => ['message'=>' Admin only area']);
 });

@@ -923,9 +923,568 @@
                     }
                 ]
             }
+        },
+        "/api/storefronts": {
+            "get": {
+                "tags": [
+                    "StoreFronts"
+                ],
+                "summary": "Get a paginated list of store fronts",
+                "description": "Returns a paginated list of store fronts",
+                "operationId": "getStoreFronts",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/StoreFrontResource"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Could not get store fronts"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "StoreFronts"
+                ],
+                "summary": "Create a new store front",
+                "description": "Stores a new store front record",
+                "operationId": "createStoreFront",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "store_name": {
+                                        "type": "string",
+                                        "example": "Main Street Store"
+                                    },
+                                    "store_address": {
+                                        "type": "string",
+                                        "example": "123 Main Street"
+                                    },
+                                    "store_country": {
+                                        "type": "string",
+                                        "example": "Nigeria"
+                                    },
+                                    "store_city": {
+                                        "type": "string",
+                                        "example": "Lagos",
+                                        "nullable": true
+                                    },
+                                    "store_phone": {
+                                        "type": "string",
+                                        "example": "+2348012345678"
+                                    },
+                                    "store_email": {
+                                        "type": "string",
+                                        "example": "store@example.com",
+                                        "nullable": true
+                                    },
+                                    "store_status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "active",
+                                            "inactive"
+                                        ],
+                                        "example": "active"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store front created successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/StoreFrontResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Could not create store front"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/storefronts/{id}": {
+            "get": {
+                "tags": [
+                    "StoreFronts"
+                ],
+                "summary": "Get a single store front by ID",
+                "description": "Returns a single store front resource",
+                "operationId": "getStoreFrontById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the store front",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/StoreFrontResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Store front not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store front not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Could not get store front"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "StoreFronts"
+                ],
+                "summary": "Update a store front",
+                "description": "Updates an existing store front. Only fields provided in the request will be updated.",
+                "operationId": "updateStoreFront",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the store front to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "store_name": {
+                                        "type": "string",
+                                        "example": "Updated Store Name"
+                                    },
+                                    "store_address": {
+                                        "type": "string",
+                                        "example": "456 New Street"
+                                    },
+                                    "store_country": {
+                                        "type": "string",
+                                        "example": "Nigeria"
+                                    },
+                                    "store_city": {
+                                        "type": "string",
+                                        "example": "Lagos",
+                                        "nullable": true
+                                    },
+                                    "store_phone": {
+                                        "type": "string",
+                                        "example": "+2348012345678"
+                                    },
+                                    "store_email": {
+                                        "type": "string",
+                                        "example": "newstore@example.com",
+                                        "nullable": true
+                                    },
+                                    "store_status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "active",
+                                            "inactive"
+                                        ],
+                                        "example": "active"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store front updated successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/StoreFrontResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Could not update store front"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "StoreFronts"
+                ],
+                "summary": "Delete a store front",
+                "description": "Deletes a store front by ID",
+                "operationId": "deleteStoreFront",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the store front to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful deletion",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "StoreFront deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Store front not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Store not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Could not delete store front"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
+        "schemas": {
+            "StoreFrontResource": {
+                "properties": {
+                    "id": {
+                        "description": "* @OA\\Schema(\n*     schema=\"StoreFrontResource\",\n*     type=\"object\",\n*     @OA\\Property(property=\"id\", type=\"integer\"),\n*     @OA\\Property(property=\"store_name\", type=\"string\"),\n*     @OA\\Property(property=\"store_address\", type=\"string\"),\n*     @OA\\Property(property=\"store_country\", type=\"string\"),\n*     @OA\\Property(property=\"store_city\", type=\"string\"),\n*     @OA\\Property(property=\"store_phone\", type=\"string\"),\n*     @OA\\Property(property=\"store_email\", type=\"string\"),\n*     @OA\\Property(property=\"store_status\", type=\"string\", enum={\"active\",\"inactive\"}),\n*     @OA\\Property(property=\"created_at\", type=\"string\", format=\"date-time\"),\n*     @OA\\Property(property=\"updated_at\", type=\"string\", format=\"date-time\")\n* )",
+                        "type": "integer"
+                    },
+                    "store_name": {
+                        "type": "string"
+                    },
+                    "store_address": {
+                        "type": "string"
+                    },
+                    "store_country": {
+                        "type": "string"
+                    },
+                    "store_city": {
+                        "type": "string"
+                    },
+                    "store_phone": {
+                        "type": "string"
+                    },
+                    "store_email": {
+                        "type": "string"
+                    },
+                    "store_status": {
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "inactive"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        },
         "securitySchemes": {
             "sanctum": {
                 "type": "http",
@@ -946,6 +1505,10 @@
         {
             "name": "Stocks",
             "description": "Stock management endpoints"
+        },
+        {
+            "name": "StoreFronts",
+            "description": "Store Front management endpoints"
         }
     ]
 }

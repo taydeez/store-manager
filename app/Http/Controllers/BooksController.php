@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BookResource;
+use App\Http\Resources\StoreFrontResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Books;
 use App\Models\Stocks;
@@ -18,8 +20,8 @@ class BooksController extends Controller
         public function index(): JsonResponse
         {
             try{
-                $books = Books::filter()->paginate(10);
-                return ApiResponse::success($books);
+                $books = Books::filter()->get();
+                return ApiResponse::success(BookResource::collection($books));
             }catch(\Exception $e){
                 Log::error('get all books',['exception' =>$e->getMessage()]);
                 return ApiResponse::error('Something went wrong');
@@ -31,8 +33,7 @@ class BooksController extends Controller
         {
             try {
                 $book = Books::with('latestStock')->where('id', $id)->first();
-
-                return ApiResponse::success($book);
+                return ApiResponse::success(new BookResource($book));
             }catch (\Exception $e) {
                 Log::error('Get single book error', ['exception' => $e->getMessage()]);
                 return ApiResponse::error('An Error has occurred', 500);

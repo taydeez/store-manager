@@ -11,20 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-
-        Schema::create('stocks', function (Blueprint $table) {
+        Schema::create('store_fronts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('book_id');
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->integer('grand_quantity');
-            $table->integer('main_store_quantity');
-            $table->integer('added');
-            $table->integer('removed');
-            $table->string('description');
+            $table->string('store_name');
+            $table->string('store_address');
+            $table->string('store_country');
+            $table->string('store_city')->nullable();
+            $table->string('store_phone');
+            $table->string('store_email')->nullable();
+            $table->enum('is_active', ['true', 'false'])->default('true');
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('book_id')->references('id')->on('books')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
 
         });
@@ -35,10 +34,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('stocks', function (Blueprint $table) {
-            $table->dropForeign(['book_id']);
+        Schema::table('store_fronts', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
         });
-        Schema::dropIfExists('stocks');
+        Schema::dropIfExists('store_fronts');
     }
 };

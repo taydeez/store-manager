@@ -5,12 +5,12 @@ namespace App\Models;
 use Abbasudo\Purity\Traits\Filterable;
 use App\Casts\BooleanStringCast;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Books extends Model
 {
-    use Filterable;
+    use Filterable, SoftDeletes, Filterable;
 
 
     protected $fillable = ['added_by','title','quantity','price','tags','available','image_url'];
@@ -25,8 +25,6 @@ class Books extends Model
             ? asset('storage/' . $this->image_url)
             : null;
     }
-
-
     protected $casts = [
         'tags' => 'array',
         'available' => BooleanStringCast::class,

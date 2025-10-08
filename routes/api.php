@@ -4,6 +4,7 @@
 use App\Http\Controllers\BooksController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StoreFrontController;
+use App\Http\Controllers\StoreInventoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -34,7 +35,15 @@ Route::middleware(['auth:sanctum','ForceJson','client.auth'])->group(function ()
     Route::post('/stock/update',  [StockController::class, 'updateStock'])->name('stock.update')->middleware('role:admin');
 
     // Manage Store fronts
-    Route::apiResource('storefronts', StoreFrontController::class)->scoped()->middleware('role:admin');;
+    Route::apiResource('storefronts', StoreFrontController::class)->scoped()->middleware('role:admin');
+
+
+    //Store inventory
+    Route::get('storeinventory', [StoreInventoryController::class,'index'])->middleware('role:admin');
+    Route::post('storeinventory', [StoreInventoryController::class,'createInventory'])->middleware('role:admin');
+    Route::patch('storeinventory/update', [StoreInventoryController::class,'updateInventory'])->middleware('role:admin');
+
+
 
     Route::get('/admin-only', fn() => ['message'=>' Admin only area']);
 });

@@ -33,7 +33,8 @@ class StockController extends Controller
             $book->updateStock(
                 add: (int) $request->add,
                 remove: (int) $request->remove,
-                description: $request->description ?? 'Stock adjustment from main store'
+                description: $request->description ?? 'Stock adjustment from main store',
+                update_grand: true
             );
 
             return ApiResponse::success([], 'Stock updated successfully');

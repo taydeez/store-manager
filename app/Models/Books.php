@@ -17,7 +17,7 @@ class Books extends Model
 
     protected $hidden = ['image_url','deleted_at','updated_at'];
 
-    protected $appends = ['photo']; // 👈 auto-include in JSON
+    protected $appends = ['photo'];
 
     public function getPhotoAttribute()
     {
@@ -42,6 +42,22 @@ class Books extends Model
       return  $this->hasOne('App\Models\Stocks','book_id','id')->latestOfMany();
     }
 
+    public function inventories()
+    {
+        return $this->hasMany(StoreInventory::class,'store_front_id','id');
+    }
+
+    public function scopeWithInventoryForStore($query, $storeId)
+    {
+        return $query->with(['inventories' => fn ($q) => $q->where('store_front_id', $storeId)]);
+    }
+
+
+    public function inventoryForStoreId($storeId)
+    {
+        return $this->inventories()->where('store_front_id', $storeId)->first();
+    }
+
 
 
     /**
@@ -50,46 +66,46 @@ class Books extends Model
      * @param int $add
      * @param int $remove
      * @param string $description
-     * @return \App\Models\Book
+     * @return \App\Models\Books
      */
-    public function updateStock(int $add = 0, int $remove = 0, string $description = 'update book stock')
+    public function updateMainStock(int $add = 0, int $remove = 0, string $description = 'update book stock', bool $update_grand = false)
     {
-        return DB::transaction(function () use ($add, $remove, $description) {
-            // Get latest stock snapshot
-            $stock = $this->stocks()->latest()->first();
+        $stock = $this->stocks()->latest()->first();
 
-            $main_value  = $stock?->main_store_quantity ?? 0;
-            $grand_value = $stock?->grand_quantity ?? 0;
+        $main_value  = $stock?->main_store_quantity ?? 0;
+        $grand_value = $stock?->grand_quantity ?? 0;
 
-            if ($add > 0) {
-                $main_value  += $add;
-                $grand_value += $add;
-            } elseif ($remove > 0) {
-                $main_value  -= $remove;
+        if ($add > 0) {
+            $main_value  += $add;
+            $grand_value += $add;
+        } elseif ($remove > 0) {
+            $main_value  -= $remove;
+
+            if ($update_grand) {
                 $grand_value -= $remove;
-
-                if ($main_value < 0 || $grand_value < 0) {
-                    throw new \Exception("Stock quantity cannot be negative.");
-                }
             }
 
-            // Save new stock history record
-            $this->stocks()->create([
-                'added'               => $add,
-                'removed'             => $remove,
-                'main_store_quantity' => $main_value,
-                'grand_quantity'      => $grand_value,
-                'description'         => $description,
-                'book_id'             => $this->id,
-            ]);
+            if ($main_value < 0 || $grand_value < 0) {
+                throw new \Exception("Stock quantity cannot be negative.");
+            }
+        }
 
-            // Update book’s current quantity
-            $this->update([
-                'quantity' => $main_value,
-            ]);
+        // Save new stock history record
+        $this->stocks()->create([
+            'added'               => $add,
+            'removed'             => $remove,
+            'main_store_quantity' => $main_value,
+            'grand_quantity'      => $grand_value,
+            'description'         => $description,
+            'book_id'             => $this->id,
+        ]);
 
-            return $this;
-        });
+        // Update book’s current quantity
+        $this->update([
+            'quantity' => $main_value,
+        ]);
+
+        return $this;
     }
 
 }

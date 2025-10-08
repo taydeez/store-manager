@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(ApiKeySeeder::class);
+
         User::factory(10)->create();
 
         foreach (range(1, 10) as $userId) {
@@ -25,6 +27,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RolePermissionSeeder::class);
         $this->call(BooksSeeder::class);
         $this->call(StocksSeeder::class);
-        $this->call(ApiKeySeeder::class);
+        $this->call(StoreInventorySeeder::class);
+
     }
 }

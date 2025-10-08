@@ -1438,6 +1438,243 @@
                     }
                 ]
             }
+        },
+        "/api/storeinventory": {
+            "get": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Get inventory by store or book",
+                "description": "Returns a list of store inventories filtered by store_id or book_id",
+                "operationId": "3a9e63c358ff77d801e97f33e357e586",
+                "parameters": [
+                    {
+                        "name": "store_id",
+                        "in": "query",
+                        "description": "Filter inventory by store ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "book_id",
+                        "in": "query",
+                        "description": "Filter inventory by book ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 12
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "book_id": {
+                                                        "type": "integer",
+                                                        "example": 12
+                                                    },
+                                                    "book_title": {
+                                                        "type": "string",
+                                                        "example": "Laravel Deep Dive"
+                                                    },
+                                                    "store_front_id": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "store_front_name": {
+                                                        "type": "string",
+                                                        "example": "Main Street Store"
+                                                    },
+                                                    "book_quantity": {
+                                                        "type": "integer",
+                                                        "example": 150
+                                                    },
+                                                    "stocked_quantity": {
+                                                        "type": "integer",
+                                                        "example": 50
+                                                    },
+                                                    "book_price": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 29.99
+                                                    },
+                                                    "is_available": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "admin_disabled": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-09-28T14:30:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/inventory": {
+            "post": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Create a new inventory record for a store",
+                "description": "Adds a book to a store's inventory. Ensures unique (book_id, store_front_id) constraint.",
+                "operationId": "85d28e0c6dd266d9bc90a0dd2d18b483",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "book_id",
+                                    "store_front_id",
+                                    "book_price",
+                                    "book_quantity",
+                                    "stocked_quantity"
+                                ],
+                                "properties": {
+                                    "book_id": {
+                                        "description": "ID of the book",
+                                        "type": "integer",
+                                        "example": 12
+                                    },
+                                    "store_front_id": {
+                                        "description": "ID of the store front",
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "book_price": {
+                                        "description": "Price of the book (integer value in minor unit or whole number)",
+                                        "type": "integer",
+                                        "example": 2500
+                                    },
+                                    "book_quantity": {
+                                        "description": "Total quantity of books in store inventory",
+                                        "type": "integer",
+                                        "example": 100
+                                    },
+                                    "stocked_quantity": {
+                                        "description": "Number of copies stocked in this update",
+                                        "type": "integer",
+                                        "example": 20
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Inventory created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Inventory added successfully"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "example": []
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or duplicate inventory",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "validation error"
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "example": "The book_id field is required."
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "failed to save inventory record for store with id 3"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1509,6 +1746,10 @@
         {
             "name": "StoreFronts",
             "description": "Store Front management endpoints"
+        },
+        {
+            "name": "Inventory",
+            "description": "Inventory"
         }
     ]
 }

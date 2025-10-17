@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Queue\Events\JobFailed;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Queue::failing(function (JobFailed $event) {
+            Log::error('Queue job failed', [
+                'connection' => $event->connectionName,
+                'queue'      => $event->job->getQueue(),
+                'payload'    => $event->job->payload(),
+                'exception'  => $event->exception->getMessage(),
+            ]);
+        });
     }
 }

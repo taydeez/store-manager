@@ -207,11 +207,16 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'code' => 'required|string|size:6',
             'password' => 'required|min:8|confirmed',
         ]);
+
+        if ($validator->fails()) {
+            return ApiResponse::error('validation error', $validator->errors()->all(), 422);
+        }
+
 
         $record = DB::table('password_reset_tokens')
             ->where('email', $request->email)

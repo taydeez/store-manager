@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\BookResource;
 use App\Http\Resources\StoreInventoryResource;
 use App\Http\Responses\ApiResponse;
-use App\Models\Books;
+use App\Models\Book;
 use App\Models\StoreInventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,42 +20,36 @@ class StoreInventoryController extends Controller
         $store_id = $request->query('store_id');
         $book_id = $request->query('book_id');
 
-
-        try{
-            if(!is_null($store_id)){
-                $inventory = StoreInventory::with('book','storefront')->where('store_front_id', $store_id)->get();
-            }elseif (!is_null($book_id)) {
-                $inventory = StoreInventory::with('book','storefront')->where('book_id', $book_id)->get();
-            }
-            return ApiResponse::success(StoreInventoryResource::collection($inventory));
-        }catch(\Exception $e){
-            Log::error('failed to get inventory for store with id '.$store_id,['exception' =>$e->getMessage()]);
-            return ApiResponse::error($e->getMessage());
+        if (!is_null($store_id)) {
+            $inventory = StoreInventory::with('book', 'storefront')->where('store_front_id', $store_id)->get();
+        } elseif (!is_null($book_id)) {
+            $inventory = StoreInventory::with('book', 'storefront')->where('book_id', $book_id)->get();
         }
+        return ApiResponse::success(StoreInventoryResource::collection($inventory));
     }
 
 
     public function createInventory(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'book_id'=>'required|exists:books,id',
-            'store_front_id'=>'required|exists:store_fronts,id',
+        $validator = Validator::make($request->all(), [
+            'book_id' => 'required|exists:books,id',
+            'store_front_id' => 'required|exists:store_fronts,id',
             'book_quantity' => 'required|integer',
         ]);
 
-        if ($validator->fails())
-        {
-            return ApiResponse::error('validation error',$validator->errors()->all(), 422);
+        if ($validator->fails()) {
+            return ApiResponse::error('validation error', $validator->errors()->all(), 422);
         }
 
-        if(StoreInventory::where(['book_id' => $request->book_id, 'store_front_id' => $request->store_front_id ])->exists())
-        {
+        if (StoreInventory::where([
+            'book_id' => $request->book_id, 'store_front_id' => $request->store_front_id
+        ])->exists()) {
             return ApiResponse::error('this book already exists in this store ', 422);
         }
 
-        try{
+        try {
             DB::transaction(function () use ($request) {
-                $book = Books::where('id', $request->book_id)->firstOrfail();
+                $book = Book::where('id', $request->book_id)->firstOrfail();
 
                 $data = $request->all();
                 $data['stocked_quantity'] = $request->book_quantity;
@@ -64,14 +57,16 @@ class StoreInventoryController extends Controller
                 $inventory = StoreInventory::create($data);
 
                 //update main store stock
-                $book->updateMainStock(0, $request->book_quantity, "{$request->book_quantity} copies were added to {$inventory->storefront->store_name} ");
+                $book->updateMainStock(0, $request->book_quantity,
+                    "{$request->book_quantity} copies were added to {$inventory->storefront->store_name} ");
 
             });
 
             return ApiResponse::success([], 'Inventory added successfully');
 
-        }catch(\Exception $e){
-            Log::error('failed to save inventory record for store with id '.$request->store_front_id,['exception' =>$e->getMessage()]);
+        } catch (\Exception $e) {
+            Log::error('failed to save inventory record for store with id '.$request->store_front_id,
+                ['exception' => $e->getMessage()]);
             return ApiResponse::error($e->getMessage());
         }
     }
@@ -79,35 +74,36 @@ class StoreInventoryController extends Controller
 
     public function updateInventory(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'book_id'=>'required|exists:books,id',
-            'store_front_id'=>'required|exists:store_fronts,id',
+        $validator = Validator::make($request->all(), [
+            'book_id' => 'required|exists:books,id',
+            'store_front_id' => 'required|exists:store_fronts,id',
             'book_quantity' => 'integer',
             'book_quantity_remove' => 'integer',
 
         ]);
 
-        if ($validator->fails())
-        {
-            return ApiResponse::error('validation error',$validator->errors()->all(), 422);
+        if ($validator->fails()) {
+            return ApiResponse::error('validation error', $validator->errors()->all(), 422);
         }
 
-        try{
+        try {
             DB::transaction(function () use ($request) {
 
                 //
-                $inventoryItem = StoreInventory::where(['book_id' => $request->book_id, 'store_front_id' => $request->store_front_id ])->first();
-                $book = Books::where('id', $request->book_id)->firstOrfail();
+                $inventoryItem = StoreInventory::where([
+                    'book_id' => $request->book_id, 'store_front_id' => $request->store_front_id
+                ])->first();
+                $book = Book::where('id', $request->book_id)->firstOrfail();
 
-                if($request->book_quantity > 0)
-                {
+                if ($request->book_quantity > 0) {
                     $inventoryItem->stocked_quantity += $request->book_quantity;
                     $inventoryItem->book_quantity += $request->book_quantity;
 
                     //update main store quantity
-                    $book->updateMainStock(0, $request->book_quantity, "{$request->book_quantity} copies were added to {$inventoryItem->storefront->store_name} ");
+                    $book->updateMainStock(0, $request->book_quantity,
+                        "{$request->book_quantity} copies were added to {$inventoryItem->storefront->store_name} ");
 
-                }else{
+                } else {
                     $inventoryItem->stocked_quantity -= $request->book_quantity_remove;
                     $inventoryItem->book_quantity -= $request->book_quantity_remove;
 
@@ -121,8 +117,9 @@ class StoreInventoryController extends Controller
 
             return ApiResponse::success([], 'Inventory updated successfully');
 
-        }catch(\Exception $e){
-            Log::error('failed to update inventory record for store with id '.$request->store_front_id,['exception' =>$e->getMessage()]);
+        } catch (\Exception $e) {
+            Log::error('failed to update inventory record for store with id '.$request->store_front_id,
+                ['exception' => $e->getMessage()]);
             return ApiResponse::error($e->getMessage());
         }
     }

@@ -1,16 +1,11 @@
-<!DOCTYPE html>
-<html>
-<body>
-# Password Reset Request
+@extends('mails.layouts.main')
 
-Your verification code is:
+@section('title', 'Password Reset Request')
+@section('subtitle', 'Your password reset code')
 
-## {{ $code }}
-This code expires in 10 minutes.
+@section('content')
+    <p><strong> Your verification code is::</strong> {{ $code }}</p>
+    <p><strong> If you did not request a password reset, please ignore this email. </strong></p>
+    This code expires in 10 minutes.
+@endsection
 
-If you did not request a password reset, please ignore this email.
-
-Thanks,<br>
-{{ config('app.name') }}
-</body>
-</html>

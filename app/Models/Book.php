@@ -4,27 +4,30 @@ namespace App\Models;
 
 use Abbasudo\Purity\Traits\Filterable;
 use App\Casts\BooleanStringCast;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 
-class Books extends Model
+class Book extends Model
 {
-    use Filterable, SoftDeletes, Filterable;
+    /** @use HasFactory<\Database\Factories\BookFactory> */
+
+    use  SoftDeletes, Filterable, HasFactory;
 
 
-    protected $fillable = ['added_by','title','quantity','price','tags','available','image_url'];
+    protected $fillable = ['added_by', 'title', 'quantity', 'price', 'tags', 'available', 'image_url'];
 
-    protected $hidden = ['image_url','deleted_at','updated_at'];
+    protected $hidden = ['image_url', 'deleted_at', 'updated_at'];
 
     protected $appends = ['photo'];
 
     public function getPhotoAttribute()
     {
         return $this->image_url
-            ? asset('storage/' . $this->image_url)
+            ? asset('storage/'.$this->image_url)
             : null;
     }
+
     protected $casts = [
         'tags' => 'array',
         'available' => BooleanStringCast::class,
@@ -33,23 +36,23 @@ class Books extends Model
 
     public function stocks()
     {
-        return $this->hasMany(Stocks::class,'book_id','id');
+        return $this->hasMany(Stock::class, 'book_id', 'id');
     }
 
 
     public function latestStock()
     {
-      return  $this->hasOne('App\Models\Stocks','book_id','id')->latestOfMany();
+        return $this->hasOne('App\Models\Stock', 'book_id', 'id')->latestOfMany();
     }
 
     public function inventories()
     {
-        return $this->hasMany(StoreInventory::class,'store_front_id','id');
+        return $this->hasMany(StoreInventory::class, 'store_front_id', 'id');
     }
 
     public function scopeWithInventoryForStore($query, $storeId)
     {
-        return $query->with(['inventories' => fn ($q) => $q->where('store_front_id', $storeId)]);
+        return $query->with(['inventories' => fn($q) => $q->where('store_front_id', $storeId)]);
     }
 
 
@@ -59,27 +62,30 @@ class Books extends Model
     }
 
 
-
     /**
      * Safely update stock for this book.
      *
-     * @param int $add
-     * @param int $remove
-     * @param string $description
-     * @return \App\Models\Books
+     * @param  int  $add
+     * @param  int  $remove
+     * @param  string  $description
+     * @return \App\Models\Book
      */
-    public function updateMainStock(int $add = 0, int $remove = 0, string $description = 'update book stock', bool $update_grand = false)
-    {
+    public function updateMainStock(
+        int $add = 0,
+        int $remove = 0,
+        string $description = 'update book stock',
+        bool $update_grand = false
+    ) {
         $stock = $this->stocks()->latest()->first();
 
-        $main_value  = $stock?->main_store_quantity ?? 0;
+        $main_value = $stock?->main_store_quantity ?? 0;
         $grand_value = $stock?->grand_quantity ?? 0;
 
         if ($add > 0) {
-            $main_value  += $add;
+            $main_value += $add;
             $grand_value += $add;
         } elseif ($remove > 0) {
-            $main_value  -= $remove;
+            $main_value -= $remove;
 
             if ($update_grand) {
                 $grand_value -= $remove;
@@ -92,12 +98,12 @@ class Books extends Model
 
         // Save new stock history record
         $this->stocks()->create([
-            'added'               => $add,
-            'removed'             => $remove,
+            'added' => $add,
+            'removed' => $remove,
             'main_store_quantity' => $main_value,
-            'grand_quantity'      => $grand_value,
-            'description'         => $description,
-            'book_id'             => $this->id,
+            'grand_quantity' => $grand_value,
+            'description' => $description,
+            'book_id' => $this->id,
         ]);
 
         // Update book’s current quantity

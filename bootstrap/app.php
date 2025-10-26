@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -71,6 +72,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'message' => 'Endpoint not found.',
                     'error' => $e->getMessage(),
+                    'e' => get_class($e),
                 ], 404);
             }
 
@@ -78,6 +80,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'message' => 'Too many requests, please try again later',
                 ], 429);
+            }
+
+            if ($e instanceof TokenExpiredException) {
+                return response()->json([
+                    'message' => 'Token expired',
+                ], 403);
             }
 
 

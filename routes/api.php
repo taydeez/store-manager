@@ -3,6 +3,7 @@
 //use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BooksController;
+use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StoreFrontController;
 use App\Http\Controllers\StoreInventoryController;
@@ -54,6 +55,22 @@ Route::middleware(['jwt.auth', 'ForceJson', 'client.auth'])->group(function () {
     Route::patch('/storeinventory/update',
         [StoreInventoryController::class, 'updateInventory'])->middleware('role:admin');
 
+
+    //Customers
+    Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index'])->middleware('role:admin');
+    Route::get('/customers/{id}', [\App\Http\Controllers\CustomerController::class, 'show'])->middleware('role:admin');
+    Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store'])->middleware('role:admin');
+    Route::delete('/customers/{id}',
+        [\App\Http\Controllers\CustomerController::class, 'destroy'])->middleware('role:admin');
+
+
+    //orders
+    Route::get('/orders', [OrdersController::class, 'index'])->middleware('role:admin');
+    Route::post('/orders', [OrdersController::class, 'createOrder'])->middleware('role:admin');
+    Route::post('/orders/cancel', [OrdersController::class, 'cancelOrder'])->middleware('role:admin');
+
+
+    //RABC
     Route::get('/rbac/roles',
         [\App\Http\Controllers\RolesAndPermissionsController::class, 'index'])->middleware('role:admin');
 

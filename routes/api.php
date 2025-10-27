@@ -3,16 +3,19 @@
 //use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BooksController;
+use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StoreFrontController;
 use App\Http\Controllers\StoreInventoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['ForceJson'])->group(function () {
-    Route::post('/account/login', [AuthController::class, 'Login']);
-    Route::post('/account/password/forgot', [AuthController::class, 'sendCode']);
-    Route::post('/account/password/verify', [AuthController::class, 'verifyCode']);
+    Route::post('/account/login', [AuthController::class, 'Login'])->middleware('throttle:5,1');;
+    Route::post('/account/password/forgot', [AuthController::class, 'sendCode'])->middleware('throttle:5,1');;
+    Route::post('/account/password/verify', [AuthController::class, 'verifyCode'])->middleware('throttle:5,1');;
     Route::post('/account/password/reset', [AuthController::class, 'resetPassword']);
+    Route::post('/account/refresh', [AuthController::class, 'refresh'])->middleware('throttle:5,1');
+
     Route::get('/up', fn() => ['message' => '👑 Running']);
 });
 
@@ -25,7 +28,6 @@ Route::middleware(['jwt.auth', 'ForceJson', 'client.auth'])->group(function () {
     Route::get('/account/user/{id}', [AuthController::class, 'getUser'])->name('user.api');
     Route::post('/account/create', [AuthController::class, 'createUser'])->name('user.create.api');
     Route::patch('/account/update', [AuthController::class, 'updateUser'])->name('user.update.api');
-    Route::post('/account/refresh', [AuthController::class, 'refresh']);
 
 
     //Book routes
@@ -53,6 +55,22 @@ Route::middleware(['jwt.auth', 'ForceJson', 'client.auth'])->group(function () {
     Route::patch('/storeinventory/update',
         [StoreInventoryController::class, 'updateInventory'])->middleware('role:admin');
 
+
+    //Customers
+    Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index'])->middleware('role:admin');
+    Route::get('/customers/{id}', [\App\Http\Controllers\CustomerController::class, 'show'])->middleware('role:admin');
+    Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store'])->middleware('role:admin');
+    Route::delete('/customers/{id}',
+        [\App\Http\Controllers\CustomerController::class, 'destroy'])->middleware('role:admin');
+
+
+    //orders
+    Route::get('/orders', [OrdersController::class, 'index'])->middleware('role:admin');
+    Route::post('/orders', [OrdersController::class, 'createOrder'])->middleware('role:admin');
+    Route::post('/orders/cancel', [OrdersController::class, 'cancelOrder'])->middleware('role:admin');
+
+
+    //RABC
     Route::get('/rbac/roles',
         [\App\Http\Controllers\RolesAndPermissionsController::class, 'index'])->middleware('role:admin');
 

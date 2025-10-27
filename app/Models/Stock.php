@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
-class Stocks extends Model
+class Stock extends Model
 {
-    use SoftDeletes;
+    /** @use HasFactory<\Database\Factories\StockFactory> */
+    use SoftDeletes, HasFactory;
 
     public static function boot()
     {
@@ -23,13 +25,15 @@ class Stocks extends Model
     }
 
 
-    protected $fillable = ['book_id','user_id','main_store_quantity','grand_quantity','added','removed','description'];
+    protected $fillable = [
+        'book_id', 'user_id', 'main_store_quantity', 'grand_quantity', 'added', 'removed', 'description'
+    ];
 
-    protected $hidden = ['created_at','updated_at','deleted_at'];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
     public function book()
     {
-        return $this->belongsTo(Books::class,'book_id','id');
+        return $this->belongsTo(Book::class, 'book_id', 'id');
     }
 
 }

@@ -73,6 +73,8 @@ class AuthController extends Controller
             'name' => 'sometimes|string:255',
             'role' => 'sometimes|string|exists:roles,name',
             'is_active' => 'sometimes|boolean',
+            'current_password' => ['required_with:password', 'string'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
         if ($validator->fails()) {
@@ -82,6 +84,17 @@ class AuthController extends Controller
         try {
 
             $user = User::where('id', $request->get('id'))->first();
+
+            if (!empty($request->current_password)) {
+                // Verify current password
+                if (!Hash::check($request->current_password, $user->password)) {
+                    return ApiResponse::error("Current password does not match", 422);
+                }
+                // Update password
+                $user->password = Hash::make($request->current_password);
+
+                $user->save();
+            }
 
             if ($request->get('role')) {
                 $user->syncRoles([]);
@@ -207,11 +220,16 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'code' => 'required|string|size:6',
             'password' => 'required|min:8|confirmed',
         ]);
+
+        if ($validator->fails()) {
+            return ApiResponse::error('validation error', $validator->errors()->all(), 422);
+        }
+
 
         $record = DB::table('password_reset_tokens')
             ->where('email', $request->email)

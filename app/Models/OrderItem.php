@@ -5,22 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class StoreInventory extends Model
+class OrderItem extends Model
 {
+    /** @use HasFactory<\Database\Factories\OrderItemFactory> */
+
     use HasFactory;
 
     protected $fillable = [
-        'store_front_id', 'book_id', 'book_quantity', 'stocked_quantity', 'is_available', 'admin_disabled'
+        'order_id', 'book_id', 'store_front_id', 'order_number', 'quantity', 'unit_price', 'sub_total', 'status'
     ];
 
 
-    public function storefront()
+    public function order()
     {
-        return $this->belongsTo(StoreFront::class, 'store_front_id', 'id');
+        return $this->belongsTo(Order::class, 'order_id', 'id');
     }
 
     public function book()
     {
         return $this->belongsTo(Book::class, 'book_id', 'id');
     }
+
 }

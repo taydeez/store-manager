@@ -26,4 +26,9 @@ class OrderItem extends Model
         return $this->belongsTo(Book::class, 'book_id', 'id');
     }
 
+    public function storeFront()
+    {
+        return $this->belongsTo(StoreFront::class, 'store_front_id', 'id');
+    }
+
 }

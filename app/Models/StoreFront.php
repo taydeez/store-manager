@@ -14,13 +14,17 @@ class StoreFront extends Model
     /** @use HasFactory<\Database\Factories\StoreFrontFactory> */
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['store_name','store_address', 'store_phone', 'store_email','is_active','store_city','store_country','user_id'];
+    protected $fillable = [
+        'store_name', 'store_address', 'store_phone', 'store_email', 'is_active', 'store_city', 'store_country',
+        'user_id'
+    ];
 
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
 
     protected $casts = [
         'is_active' => BooleanStringCast::class,

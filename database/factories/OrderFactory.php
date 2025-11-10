@@ -48,7 +48,7 @@ class OrderFactory extends Factory
 
             // update order total
             $order->update([
-                'total_amount' => $order->items->sum('subtotal'),
+                'total_amount' => $order->items()->sum('sub_total'),
             ]);
         });
     }

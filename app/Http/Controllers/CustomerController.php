@@ -24,7 +24,7 @@ class CustomerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string:255',
-            'phone' => 'required|string|unique:customers|confirmed',
+            'phone' => 'required|string|unique:customers',
             'location' => 'required|string',
             'email' => 'string|email|max:255|unique:customers',
         ]);
@@ -34,13 +34,13 @@ class CustomerController extends Controller
         }
 
         try {
-            Customer::create([
+            $customer = Customer::create([
                 'name' => $request->get('name'),
                 'phone' => $request->get('phone'),
                 'location' => $request->get('location'),
                 'email' => $request->get('email') || null,
             ]);
-            return ApiResponse::success([], 'Customer created successfully', 201);
+            return ApiResponse::success($customer, 'Customer created successfully', 201);
         } catch (\Exception $e) {
             Log::error('store customer', ['exception' => $e->getMessage()]);
             return ApiResponse::error('Something went wrong');
@@ -50,7 +50,7 @@ class CustomerController extends Controller
 
     public function show($phone_number)
     {
-        $customer = Customer::where('phone', $phone_number)->first();
+        $customer = Customer::where('phone', $phone_number)->firstOrFail();
         return ApiResponse::success(new CustomerResource($customer));
     }
 

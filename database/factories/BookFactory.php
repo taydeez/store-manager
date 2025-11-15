@@ -23,7 +23,7 @@ class BookFactory extends Factory
             'title' => $this->faker->sentence(),
             'added_by' => User::inRandomOrder()->value('id'),
             'quantity' => $this->faker->numberBetween(1, 100),
-            'price' => $this->faker->numberBetween(2000, 10000),
+            'price' => $this->faker->randomElement([1000, 2000, 3000, 4000, 5000, 6000,10000, 15000,20000]),
             'image_url' => $this->faker->imageUrl(
                 width: 640, // Optional: Specify the desired width
                 height: 480, // Optional: Specify the desired height

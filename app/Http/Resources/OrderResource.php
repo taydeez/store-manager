@@ -18,7 +18,7 @@ class OrderResource extends JsonResource
             'id' => $this->id,
             'status' => $this->status,
             'total_amount' => $this->total_amount,
-            'ordered_at' => $this->ordered_at,
+            'order_number' => $this->order_number,
             'customer' => [
                 'id' => $this->customer?->id,
                 'name' => $this->customer?->name,
@@ -28,6 +28,7 @@ class OrderResource extends JsonResource
                 'name' => $this->storefront?->store_name,
 
             ],
+            'order_items' => OrderItemResource::collection($this->items),
             'created_at' => $this->created_at,
         ];
     }

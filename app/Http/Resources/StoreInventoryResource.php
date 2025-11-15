@@ -22,7 +22,7 @@ class StoreInventoryResource extends JsonResource
             'store_front_name' => $this->storefront?->store_name,
             'book_quantity' => $this->book_quantity,
             'stocked_quantity' => $this->stocked_quantity,
-            'book_price' => $this->book_price,
+            'book_price' => $this->book?->price,
             'is_available' => $this->is_available,
             'admin_disabled' => $this->admin_disabled,
             'created_at' => $this->created_at,

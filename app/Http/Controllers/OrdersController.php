@@ -61,6 +61,7 @@ class OrdersController extends Controller
                         'order_number' => $orderNumber,
                         'store_front_id' => $request->input('store_front_id'),
                         'unit_price' => $bookItem->price,
+                        'status' => 'completed',
                         'sub_total' => $bookItem->price * $book['quantity'],
                     ]);
 

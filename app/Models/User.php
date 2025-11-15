@@ -25,6 +25,7 @@ class User extends Authenticatable implements JwtSubject
      * @var list<string>
      */
     protected $fillable = [
+        'store_front_id',
         'name',
         'email',
         'password',
@@ -70,7 +71,6 @@ class User extends Authenticatable implements JwtSubject
     protected $casts = [
         'is_active' => BooleanStringCast::class,
     ];
-
 
 
 }

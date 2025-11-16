@@ -4,12 +4,13 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BooksController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StoreFrontController;
 use App\Http\Controllers\StoreInventoryController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['ForceJson'])->group(function () {
+Route::middleware(['ForceJson','client.auth'])->group(function () {
     Route::post('/account/login', [AuthController::class, 'Login'])->middleware('throttle:5,1');;
     Route::post('/account/password/forgot', [AuthController::class, 'sendCode'])->middleware('throttle:5,1');;
     Route::post('/account/password/verify', [AuthController::class, 'verifyCode'])->middleware('throttle:5,1');;
@@ -69,6 +70,13 @@ Route::middleware(['jwt.auth', 'ForceJson', 'client.auth'])->group(function () {
     Route::post('/orders', [OrdersController::class, 'createOrder'])->middleware('role:admin');
     Route::post('/orders/cancel', [OrdersController::class, 'cancelOrder'])->middleware('role:admin');
 
+
+    //statistics
+    Route::get('/statistics/monthly-sales', [StatisticsController::class, 'monthlySalesStatistics'])->middleware('role:admin');
+
+    Route::get('/statistics/best-sellers', [StatisticsController::class, 'bestSellers'])->middleware('role:admin');
+
+    Route::get('/statistics/out-of-stock', [StatisticsController::class, 'lowAndOutofStock'])->middleware('role:admin');
 
     //RABC
     Route::get('/rbac/roles',

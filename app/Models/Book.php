@@ -23,9 +23,14 @@ class Book extends Model
 
     public function getPhotoAttribute()
     {
-        return $this->image_url
-            ? asset('storage/'.$this->image_url)
-            : null;
+        if(str_contains($this->image_url,'http')){
+            return $this->image_url;
+        }else{
+            return $this->image_url
+                ? asset('storage/'.$this->image_url)
+                : null;
+        }
+
     }
 
     protected $casts = [

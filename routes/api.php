@@ -10,7 +10,7 @@ use App\Http\Controllers\StoreFrontController;
 use App\Http\Controllers\StoreInventoryController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['ForceJson','client.auth'])->group(function () {
+Route::middleware(['ForceJson', 'client.auth'])->group(function () {
     Route::post('/account/login', [AuthController::class, 'Login'])->middleware('throttle:5,1');;
     Route::post('/account/password/forgot', [AuthController::class, 'sendCode'])->middleware('throttle:5,1');;
     Route::post('/account/password/verify', [AuthController::class, 'verifyCode'])->middleware('throttle:5,1');;
@@ -26,7 +26,7 @@ Route::middleware(['jwt.auth', 'ForceJson', 'client.auth'])->group(function () {
     //users
     Route::get('/account/users', [AuthController::class, 'index'])->name('users')->middleware('role:admin');
     Route::get('/account/user', [AuthController::class, 'getUser'])->name('user.api');
-    Route::get('/account/user/{id}', [AuthController::class, 'getUser'])->name('user.api');
+    Route::get('/account/user/{id}', [AuthController::class, 'getUser'])->name('user.account.api');
     Route::post('/account/create', [AuthController::class, 'createUser'])->name('user.create.api');
     Route::patch('/account/update', [AuthController::class, 'updateUser'])->name('user.update.api');
 

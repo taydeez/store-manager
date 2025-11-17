@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\SettingsManager;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Queue;
@@ -14,7 +15,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(SettingsManager::class, function () {
+            return new SettingsManager();
+        });
     }
 
     /**
@@ -25,9 +28,9 @@ class AppServiceProvider extends ServiceProvider
         Queue::failing(function (JobFailed $event) {
             Log::error('Queue job failed', [
                 'connection' => $event->connectionName,
-                'queue'      => $event->job->getQueue(),
-                'payload'    => $event->job->payload(),
-                'exception'  => $event->exception->getMessage(),
+                'queue' => $event->job->getQueue(),
+                'payload' => $event->job->payload(),
+                'exception' => $event->exception->getMessage(),
             ]);
         });
     }

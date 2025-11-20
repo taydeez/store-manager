@@ -37,7 +37,7 @@ WORKDIR /app
 COPY . .
 
 COPY docker/nginx/nginx.conf /etc/nginx/http.d/default.conf
-COPY docker/php/php_prod.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/php_dev.ini /usr/local/etc/php/conf.d/custom.ini
 
 RUN chown -R www-data:www-data storage bootstrap/cache
 

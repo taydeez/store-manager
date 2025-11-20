@@ -8,6 +8,7 @@ use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StoreFrontController;
 use App\Http\Controllers\StoreInventoryController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['ForceJson', 'client.auth'])->group(function () {
@@ -18,6 +19,51 @@ Route::middleware(['ForceJson', 'client.auth'])->group(function () {
     Route::post('/account/refresh', [AuthController::class, 'refresh'])->middleware('throttle:5,1');
 
     Route::get('/up', fn() => ['message' => '👑 Running']);
+
+    Route::get('/health', function () {
+        return response()->json([
+            'status' => 'healthy',
+            'timestamp' => now(),
+        ]);
+    });
+
+    Route::get('/health/deep', function () {
+        $checks = [];
+
+        // Database
+        try {
+            DB::connection()->getPdo();
+            $checks['database'] = 'ok';
+        } catch (\Exception $e) {
+            $checks['database'] = 'failed';
+        }
+
+//        // Redis
+//        try {
+//            Redis::set('health', 'ok');
+//            $checks['redis'] = Redis::get('health') === 'ok' ? 'ok' : 'failed';
+//        } catch (\Exception $e) {
+//            $checks['redis'] = 'failed';
+//        }
+
+        // Storage
+//        try {
+//            Storage::disk('gcs')->put('health.txt', 'ok');
+//            $checks['storage'] = 'ok';
+//            Storage::disk('gcs')->delete('health.txt');
+//        } catch (\Exception $e) {
+//            $checks['storage'] = 'failed';
+//        }
+
+        $healthy = collect($checks)->every(fn($v) => $v === 'ok');
+
+        return response()->json([
+            'status' => $healthy ? 'healthy' : 'unhealthy',
+            'checks' => $checks,
+        ], $healthy ? 200 : 503);
+    });
+
+
 });
 
 
@@ -93,4 +139,6 @@ Route::middleware(['jwt.auth', 'ForceJson', 'client.auth'])->group(function () {
         [\App\Http\Controllers\RolesAndPermissionsController::class, 'permissions'])->middleware('role:admin');
 
     Route::get('/admin-only', fn() => ['message' => ' Admin only area']);
+
+
 });

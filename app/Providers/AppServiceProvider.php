@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Support\SettingsManager;
+use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Queue;
@@ -23,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot(UrlGenerator $url): void
     {
         Queue::failing(function (JobFailed $event) {
             Log::error('Queue job failed', [
@@ -33,5 +34,10 @@ class AppServiceProvider extends ServiceProvider
                 'exception' => $event->exception->getMessage(),
             ]);
         });
+
+        if (env('APP_ENV') == 'production') {
+            $url->forceScheme('https');
+        }
+
     }
 }

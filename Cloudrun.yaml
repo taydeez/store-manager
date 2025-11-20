@@ -1,0 +1,30 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: my-laravel-api
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+        - image: gcr.io/PROJECT-ID/my-laravel-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_ENV
+              value: development
+            - name: APP_KEY
+              value: ${APP_KEY}
+            - name: DB_HOST
+              value: your-db-ip
+            - name: DB_DATABASE
+              value: your-db
+            - name: DB_USERNAME
+              value: your-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bookstore-db-pwd           # secret name in Secret Manager
+                  key: latest
+      timeoutSeconds: 900
+      containerConcurrency: 100

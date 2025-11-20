@@ -7,7 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
+    environment: staging
 
     steps:
       - uses: actions/checkout@v3
@@ -28,7 +28,7 @@ jobs:
         run: |
           IMAGE="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bookstore-api/bookstore-api:latest"
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
-          docker build -t $IMAGE .
+          docker build -f Dockerfile.staging -t $IMAGE .
 
       - name: Push image
         run: docker push $IMAGE

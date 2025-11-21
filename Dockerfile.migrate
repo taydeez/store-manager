@@ -1,32 +1,31 @@
-# ---------- Base Image ----------
-FROM php:8.3-fpm
+# ----------------------------------------------------
+# Build a lightweight container ONLY for migrations
+# ----------------------------------------------------
+FROM php:8.3-cli-alpine
 
-# ---------- System Dependencies ----------
-RUN apt-get update && apt-get install -y \
-    git curl libpq-dev libzip-dev unzip \
-    && docker-php-ext-install pdo pdo_mysql
+# Install system deps
+RUN apk add --no-cache \
+    bash git curl unzip zip \
+    libzip-dev icu-dev oniguruma-dev zlib-dev \
+    mariadb-client \
+    autoconf gcc g++ make
 
-# ---------- Install Composer ----------
+# PHP extensions needed by Laravel
+RUN docker-php-ext-install pdo_mysql bcmath intl zip
+
+# Redis (optional)
+RUN pecl install redis && docker-php-ext-enable redis
+
+# Get Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# ---------- Set Working Directory ----------
-WORKDIR /var/www/html
+WORKDIR /app
 
-# ---------- Copy Code ----------
+# Copy application code
 COPY . .
 
-# ---------- Install Dependencies ----------
-RUN composer install --no-dev --optimize-autoloader
+# Install dependencies optimised for production
+RUN composer install --optimize-autoloader --prefer-dist --no-interaction
 
-# ---------- Set Laravel Permissions ----------
-RUN mkdir -p storage bootstrap/cache \
-    && chmod -R 755 storage bootstrap/cache
-
-# ---------- Cloud SQL Auth Proxy (optional if using private IP) ----------
-# COPY cloud-sql-proxy /cloud-sql-proxy
-# RUN chmod +x /cloud-sql-proxy
-
-# ---------- Entrypoint Override ----------
-# This entrypoint lets Cloud Run Job pass commands like:
-#   php artisan migrate --seed
-ENTRYPOINT ["php", "/var/www/html/artisan"]
+# Default command (can be overridden)
+CMD ["php", "artisan", "migrate", "--seed","--force"]

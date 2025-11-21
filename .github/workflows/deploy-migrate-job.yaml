@@ -2,9 +2,6 @@ name: Deploy Migration Job
 
 on:
   workflow_dispatch:  # manual trigger only
-  push:
-    branches:
-      - staging
 
 jobs:
   deploy-migration-job:
@@ -28,7 +25,7 @@ jobs:
       # Build & Push Job Image
       - name: Build & Push Image
         run: |
-          IMAGE="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/migrate-job/migrate-job:latest"
+          IMAGE="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bookstore-api-migrations/bookstore-api-migrations:latest"
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
           docker build -t $IMAGE -f Dockerfile.migrate .
           docker push $IMAGE

@@ -225,8 +225,49 @@ class Books{
      * )
      */
 
-
     public function update(){}
+
+/**
+* @OA\Patch(
+*     path="/api/books/shelf/{book_id}",
+*     summary="Enable or disable a book",
+*     description="Toggles the availability of a book. If available, it will be disabled; if disabled, it will be enabled.",
+*     tags={"Books"},
+*     @OA\Parameter(
+ *         name="book_id",
+ *         in="path",
+ *         description="ID of the book to toggle",
+ *         required=true,
+ *         @OA\Schema(type="integer", example=1)
+*     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Book availability changed successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Book is disabled successfully")
+*         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Book not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Book not found")
+*         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error while updating book availability",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Book Availability was not changed")
+*         )
+ *     )
+ * )
+ */
+
+    public function  shelf(){}
 
 
     /**

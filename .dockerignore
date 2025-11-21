@@ -1,0 +1,26 @@
+# OS / Editor crap
+.idea/
+.vscode/
+*.log
+node_modules/
+npm-debug.log
+
+# Laravel stuff
+vendor/
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Environment
+.env
+.env.*
+.env.local
+
+# Git
+.git/
+.gitignore
+
+# Docker
+docker-compose.yml
+Dockerfile*

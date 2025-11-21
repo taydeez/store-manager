@@ -19,11 +19,11 @@ class ClientAuthMiddleware
         $uri = $request->route()?->uri(); // e.g., 'api/v1/users'
         $routePrefix = explode('/', $uri)[0]; // returns 'api'
 
-        $key = $request->header('X-API-KEY');
+        $key = $request->header('x-api-key');
         if($routePrefix === 'api')
         {
             if ((!$key || !ApiClient::where('api_key', $key)->exists())) {
-                return response()->json(['error' => 'X-API-KEY is missing or invalid'], 401);
+                return response()->json(['error' => 'x-api-key is missing or invalid'], 401);
             }
         }
 

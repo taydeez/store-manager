@@ -33,10 +33,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('books', function (Blueprint $table) {
             $table->dropForeign(['added_by']);
-            $table->integer('added_by');
         });
-
+        Schema::dropIfExists('books');
     }
 };

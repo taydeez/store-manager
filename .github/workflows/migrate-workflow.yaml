@@ -1,0 +1,53 @@
+name: Deploy Bookstore Migration Job
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-migration-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Authenticate to GCP
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      # Setup gcloud
+      - uses: google-github-actions/setup-gcloud@v2
+
+      # Configure Docker for Artifact Registry
+      - name: Configure Docker
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+      # Build & Push Job Image
+      - name: Build & Push Image
+        run: |
+          IMAGE="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bookstore-api-migrations/bookstore-api-migrations:latest"
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          docker build -t $IMAGE -f Dockerfile.migrate .
+          docker push $IMAGE
+
+      # Deploy Cloud Run Job
+      - name: Deploy Job
+        run: |
+          gcloud beta run jobs deploy migrate-job \
+            --image "$IMAGE" \
+            --region europe-west1 \
+            --add-cloudsql-instances ${{ secrets.CLOUD_SQL_CONNECTION_NAME }} \
+            --set-secrets DB_PASSWORD=bookstore-db-pwd:latest \
+            --set-secrets APP_KEY=APP_KEY:latest \
+            --set-secrets JWT_SECRET=JWT_SECRET:latest \
+            --set-env-vars APP_ENV=development \
+            --set-env-vars DB_USERNAME=bookstore_user \
+            --set-env-vars DB_HOST=/cloudsql/bookstore-staging:europe-west1:free-trial-first-project \
+            --set-env-vars DB_SOCKET=/cloudsql/bookstore-staging:europe-west1:free-trial-first-project \
+            --set-env-vars DB_PORT=3306 \
+            --set-env-vars DB_CONNECTION=mysql \
+            --set-env-vars DB_DATABASE=bookstore \
+            --set-env-vars LOG_CHANNEL=stderr \
+            --set-env-vars CLOUD_SQL_CONNECTION_NAME=${{ secrets.CLOUD_SQL_CONNECTION_NAME }} \
+            --command="migrate" \
+            --args="--seed"

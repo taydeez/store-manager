@@ -1,4 +1,4 @@
-name: Deploy Migration Job
+name: Deploy Bookstore Migration Job
 
 on:
   workflow_dispatch:  # manual trigger only

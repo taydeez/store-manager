@@ -1,0 +1,32 @@
+# ---------- Base Image ----------
+FROM php:8.3-fpm
+
+# ---------- System Dependencies ----------
+RUN apt-get update && apt-get install -y \
+    git curl libpq-dev libzip-dev unzip \
+    && docker-php-ext-install pdo pdo_mysql
+
+# ---------- Install Composer ----------
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# ---------- Set Working Directory ----------
+WORKDIR /var/www/html
+
+# ---------- Copy Code ----------
+COPY . .
+
+# ---------- Install Dependencies ----------
+RUN composer install --no-dev --optimize-autoloader
+
+# ---------- Set Laravel Permissions ----------
+RUN mkdir -p storage bootstrap/cache \
+    && chmod -R 755 storage bootstrap/cache
+
+# ---------- Cloud SQL Auth Proxy (optional if using private IP) ----------
+# COPY cloud-sql-proxy /cloud-sql-proxy
+# RUN chmod +x /cloud-sql-proxy
+
+# ---------- Entrypoint Override ----------
+# This entrypoint lets Cloud Run Job pass commands like:
+#   php artisan migrate --seed
+ENTRYPOINT ["php", "/var/www/html/artisan"]

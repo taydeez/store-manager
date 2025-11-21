@@ -46,8 +46,7 @@ jobs:
             --set-env-vars DB_DATABASE=bookstore \
             --set-env-vars LOG_CHANNEL=stderr \
             --command php \
-            --args "artisan,migrate,--force" \
-            --no-traffic
+            --args "artisan,migrate,--force"
 
       - name: Execute Job
         run: |

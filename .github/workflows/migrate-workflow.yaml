@@ -1,7 +1,7 @@
 name: Deploy Bookstore Migration Job
 
 on:
-  workflow_dispatch:  # manual trigger only
+  workflow_dispatch:
 
 jobs:
   deploy-migration-job:
@@ -47,7 +47,7 @@ jobs:
             --set-env-vars DB_PORT=3306 \
             --set-env-vars DB_CONNECTION=mysql \
             --set-env-vars DB_DATABASE=bookstore \
-            --set-env-vars LOG_CHANNEL=stderr
+            --set-env-vars LOG_CHANNEL=stderr \
             --set-env-vars CLOUD_SQL_CONNECTION_NAME=${{ secrets.CLOUD_SQL_CONNECTION_NAME }} \
             --command="migrate" \
             --args="--seed"

@@ -46,15 +46,9 @@ jobs:
             --set-env-vars DB_DATABASE=bookstore \
             --set-env-vars LOG_CHANNEL=stderr \
             --command php \
-            --args "artisan,migrate,--force"
+            --args "artisan,migrate,--seed,--force"
 
       - name: Execute Job
         run: |
           gcloud run jobs execute bookstore-api-migrations \
             --region europe-west1
-
-      - name: Tail Logs
-        run: |
-          gcloud run jobs logs tail bookstore-api-migrations \
-            --region europe-west1 \
-            --follow

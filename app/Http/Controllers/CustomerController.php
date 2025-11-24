@@ -6,6 +6,7 @@ use App\Http\Resources\CustomerResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -50,7 +51,9 @@ class CustomerController extends Controller
 
     public function show($phone_number)
     {
-        $customer = Customer::where('phone', $phone_number)->firstOrFail();
+        //$customer = Customer::where('phone', $phone_number)->firstOrFail();
+        $customer = Cache::remember('customer_' . $phone_number, 600, fn() => Customer::where('phone', $phone_number)->firstOrFail());
+
         return ApiResponse::success(new CustomerResource($customer));
     }
 

@@ -8,6 +8,7 @@ use App\Models\Book;
 use App\Models\Stock;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -24,10 +25,50 @@ class BooksController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $book = Book::with('latestStock')->where('id', $id)->first();
+        //$book = Book::with('latestStock')->where('id', $id)->first();
+
+        $book = Cache::remember('book_' . $id, 600, fn() => Book::with('latestStock')->where('id', $id)->first());
+
         return ApiResponse::success(new BookResource($book));
     }
 
+    public function update($id, Request $request, Book $books)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'string:255',
+            'quantity' => 'integer|min:1',
+            'price' => 'integer|min:1',
+            'added_by' => 'integer',
+        ]);
+
+        if ($validator->fails()) {
+            return ApiResponse::error('validation error', $validator->errors()->all(), 422);
+        }
+
+        try {
+
+            $path = null;
+
+            //TODO remove old image
+
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('photos', 'public');
+            }
+
+            $request->merge([
+                'tags' => $request->input('tags'),
+                'image_url' => $path
+            ]);
+
+
+            $book = $books->where('id', $id)->first();
+            $book->update($request->all());
+            return ApiResponse::success([], 'Book updated successfully');
+        } catch (\Exception $e) {
+            Log::error('Update Book Error', ['exception' => $e->getMessage()]);
+            return ApiResponse::error('An Error has occurred', 500);
+        }
+    }
 
     public function store(Request $request)
     {
@@ -80,46 +121,6 @@ class BooksController extends Controller
             return ApiResponse::error('An Error has occurred', 500);
         }
     }
-
-
-    public function update($id, Request $request, Book $books)
-    {
-        $validator = Validator::make($request->all(), [
-            'title' => 'string:255',
-            'quantity' => 'integer|min:1',
-            'price' => 'integer|min:1',
-            'added_by' => 'integer',
-        ]);
-
-        if ($validator->fails()) {
-            return ApiResponse::error('validation error', $validator->errors()->all(), 422);
-        }
-
-        try {
-
-            $path = null;
-
-            //TODO remove old image
-
-            if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('photos', 'public');
-            }
-
-            $request->merge([
-                'tags' => $request->input('tags'),
-                'image_url' => $path
-            ]);
-
-
-            $book = $books->where('id', $id)->first();
-            $book->update($request->all());
-            return ApiResponse::success([], 'Book updated successfully');
-        } catch (\Exception $e) {
-            Log::error('Update Book Error', ['exception' => $e->getMessage()]);
-            return ApiResponse::error('An Error has occurred', 500);
-        }
-    }
-
 
     public function shelf($book_id)
     {

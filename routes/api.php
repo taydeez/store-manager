@@ -10,6 +10,47 @@ use App\Http\Controllers\StoreFrontController;
 use App\Http\Controllers\StoreInventoryController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redis;
+
+
+//health checks
+Route::get('/health/deep', function () {
+    $checks = [];
+
+    // Database
+    try {
+        DB::connection()->getPdo();
+        $checks['database'] = 'ok';
+    } catch (\Exception $e) {
+        $checks['database'] = 'failed';
+    }
+
+    // Redis
+    try {
+        Redis::set('health', 'ok');
+        $checks['redis'] = Redis::get('health') === 'ok' ? 'ok' : 'failed';
+    } catch (\Exception $e) {
+        $checks['redis'] = 'failed';
+    }
+
+    //Storage
+    try {
+        Storage::disk()->put('health.txt', 'ok');
+        $checks['storage'] = 'ok';
+        Storage::disk()->delete('health.txt');
+    } catch (\Exception $e) {
+        $checks['storage'] = $e->getMessage();
+    }
+
+    $healthy = collect($checks)->every(fn($v) => $v === 'ok');
+
+    return response()->json([
+        'status' => $healthy ? 'healthy' : 'unhealthy',
+        'checks' => $checks,
+    ], $healthy ? 200 : 503);
+});
+
 
 Route::middleware(['ForceJson', 'client.auth'])->group(function () {
     Route::post('/account/login', [AuthController::class, 'Login'])->middleware('throttle:5,1');;
@@ -25,42 +66,6 @@ Route::middleware(['ForceJson', 'client.auth'])->group(function () {
             'status' => 'healthy',
             'timestamp' => now(),
         ]);
-    });
-
-    Route::get('/health/deep', function () {
-        $checks = [];
-
-        // Database
-        try {
-            DB::connection()->getPdo();
-            $checks['database'] = 'ok';
-        } catch (\Exception $e) {
-            $checks['database'] = 'failed';
-        }
-
-//        // Redis
-//        try {
-//            Redis::set('health', 'ok');
-//            $checks['redis'] = Redis::get('health') === 'ok' ? 'ok' : 'failed';
-//        } catch (\Exception $e) {
-//            $checks['redis'] = 'failed';
-//        }
-
-        // Storage
-//        try {
-//            Storage::disk('gcs')->put('health.txt', 'ok');
-//            $checks['storage'] = 'ok';
-//            Storage::disk('gcs')->delete('health.txt');
-//        } catch (\Exception $e) {
-//            $checks['storage'] = 'failed';
-//        }
-
-        $healthy = collect($checks)->every(fn($v) => $v === 'ok');
-
-        return response()->json([
-            'status' => $healthy ? 'healthy' : 'unhealthy',
-            'checks' => $checks,
-        ], $healthy ? 200 : 503);
     });
 
 
@@ -105,7 +110,7 @@ Route::middleware(['jwt.auth', 'ForceJson', 'client.auth'])->group(function () {
 
     //Customers
     Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index'])->middleware('role:admin');
-    Route::get('/customers/{id}', [\App\Http\Controllers\CustomerController::class, 'show'])->middleware('role:admin');
+    Route::get('/customers/{phone_number}', [\App\Http\Controllers\CustomerController::class, 'show'])->middleware('role:admin');
     Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store'])->middleware('role:admin');
     Route::delete('/customers/{id}',
         [\App\Http\Controllers\CustomerController::class, 'destroy'])->middleware('role:admin');

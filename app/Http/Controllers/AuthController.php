@@ -21,7 +21,8 @@ class AuthController extends Controller
 
     public function index()
     {
-        $users = User::all();
+        //$users = User::all();
+        $users = User::cachedAll();
         return ApiResponse::success(userResource::collection($users));
     }
 
@@ -123,6 +124,24 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
     }
 
+    protected function respondWithToken($token)
+    {
+        $user = auth('api')->user();
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'store_front_id' => $user->store_front_id,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
+            ],
+        ]);
+    }
 
     public function removeUser(Request $request)
     {
@@ -142,7 +161,8 @@ class AuthController extends Controller
     {
         try {
             $id = auth('api')->user()->id;
-            $user = User::where('id', $id)->firstOrFail();
+            //$user = User::where('id', $id)->firstOrFail();
+            $user = User::cachedFind($id);
             return ApiResponse::success(new userResource($user));
         } catch (\Exception $e) {
             Log::error('Get user Error', ['exception' => $e->getMessage()]);
@@ -158,7 +178,6 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-
     public function refresh()
     {
         $token = auth('api')->refresh();
@@ -166,7 +185,6 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
 
     }
-
 
     public function sendCode(Request $request)
     {
@@ -251,26 +269,6 @@ class AuthController extends Controller
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         return ApiResponse::success([], 'password reset successfully', 201);
-    }
-
-
-    protected function respondWithToken($token)
-    {
-        $user = auth('api')->user();
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'store_front_id' => $user->store_front_id,
-                'roles' => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-            ],
-        ]);
     }
 
 

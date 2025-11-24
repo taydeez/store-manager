@@ -7,6 +7,7 @@ use App\Casts\BooleanStringCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 class Book extends Model
 {
@@ -16,43 +17,39 @@ class Book extends Model
 
 
     protected $fillable = ['added_by', 'title', 'quantity', 'price', 'tags', 'available', 'image_url'];
-
     protected $hidden = ['image_url', 'deleted_at', 'updated_at'];
-
     protected $appends = ['photo'];
-
-    public function getPhotoAttribute()
-    {
-        if(str_contains($this->image_url,'http')){
-            return $this->image_url;
-        }else{
-            return $this->image_url
-                ? asset('storage/'.$this->image_url)
-                : null;
-        }
-
-    }
-
     protected $casts = [
         'tags' => 'array',
         'available' => BooleanStringCast::class,
     ];
 
-
-    public function stocks()
+    protected static function booted()
     {
-        return $this->hasMany(Stock::class, 'book_id', 'id');
+        static::saved(function ($book) {
+            Cache::forget('book_' . $book->id);
+        });
+
+        static::deleted(function ($book) {
+            Cache::forget('book_' . $book->id);
+        });
     }
 
+    public function getPhotoAttribute()
+    {
+        if (str_contains($this->image_url, 'http')) {
+            return $this->image_url;
+        } else {
+            return $this->image_url
+                ? asset('storage/' . $this->image_url)
+                : null;
+        }
+
+    }
 
     public function latestStock()
     {
         return $this->hasOne('App\Models\Stock', 'book_id', 'id')->latestOfMany();
-    }
-
-    public function inventories()
-    {
-        return $this->hasMany(StoreInventory::class, 'store_front_id', 'id');
     }
 
     public function scopeWithInventoryForStore($query, $storeId)
@@ -60,27 +57,31 @@ class Book extends Model
         return $query->with(['inventories' => fn($q) => $q->where('store_front_id', $storeId)]);
     }
 
-
     public function inventoryForStoreId($storeId)
     {
         return $this->inventories()->where('store_front_id', $storeId)->first();
     }
 
+    public function inventories()
+    {
+        return $this->hasMany(StoreInventory::class, 'store_front_id', 'id');
+    }
 
     /**
      * Safely update stock for this book.
      *
-     * @param  int  $add
-     * @param  int  $remove
-     * @param  string  $description
+     * @param int $add
+     * @param int $remove
+     * @param string $description
      * @return \App\Models\Book
      */
     public function updateMainStock(
-        int $add = 0,
-        int $remove = 0,
+        int    $add = 0,
+        int    $remove = 0,
         string $description = 'update book stock',
-        bool $update_grand = false
-    ) {
+        bool   $update_grand = false
+    )
+    {
         $stock = $this->stocks()->latest()->first();
 
         $main_value = $stock?->main_store_quantity ?? 0;
@@ -117,6 +118,11 @@ class Book extends Model
         ]);
 
         return $this;
+    }
+
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class, 'book_id', 'id');
     }
 
 }

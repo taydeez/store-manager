@@ -11,11 +11,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Traits\CachesModel;
 
 class User extends Authenticatable implements JwtSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, HasRoles, SoftDeletes;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles, SoftDeletes, cachesModel;
 
     protected $guard_name = 'api';
 
@@ -41,19 +42,9 @@ class User extends Authenticatable implements JwtSubject
         'password',
         'remember_token',
     ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'is_active' => BooleanStringCast::class,
+    ];
 
     public function getJWTIdentifier()
     {
@@ -68,9 +59,18 @@ class User extends Authenticatable implements JwtSubject
         ];
     }
 
-    protected $casts = [
-        'is_active' => BooleanStringCast::class,
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
 
 }

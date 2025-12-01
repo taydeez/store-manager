@@ -11,6 +11,7 @@ use App\Models\Book;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use Illuminate\Support\Facades\Cache;
 
 class StatisticsController extends Controller
 {
@@ -31,7 +32,12 @@ class StatisticsController extends Controller
             $months[$month] = (float)$total;
         }
 
-        return new MonthlySalesStatisticsResource(array_values($months));
+        $stats = array_values($months);
+
+        $res = Cache::remember('stats_monthly_sales_' . $year, 600, fn() => $stats);
+
+
+        return new MonthlySalesStatisticsResource($res);
     }
 
 
@@ -49,7 +55,10 @@ class StatisticsController extends Controller
             ->limit(5)
             ->get();
 
-        return new BestSellersResource($topBooks);
+        $res = Cache::remember('stats_best_sellers_' . $year, 600, fn() => $topBooks);
+
+
+        return new BestSellersResource($res);
     }
 
     public function lowAndOutofStock(Request $request)
@@ -58,7 +67,11 @@ class StatisticsController extends Controller
             ->inRandomOrder()
             ->take(5)
             ->get();
-        return ApiResponse::success(BookResource::collection($books));
+
+        $res = Cache::remember('out_of_stock', 600, fn() => $books);
+
+
+        return ApiResponse::success(BookResource::collection($res));
     }
 
 

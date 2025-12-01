@@ -17,7 +17,7 @@ class OrdersController extends Controller
 
     public function index()
     {
-        $orders = Order::filter()->get();
+        $orders = Order::filter()->OrderBy('created_at', 'desc')->get();
         return ApiResponse::success(OrderResource::collection($orders));
     }
 
@@ -39,7 +39,7 @@ class OrdersController extends Controller
 
             DB::transaction(function () use ($request) {
 
-                $orderNumber = 'ORD-'.time();
+                $orderNumber = 'ORD-' . time();
 
                 $order = Order::create([
                     'order_number' => $orderNumber,

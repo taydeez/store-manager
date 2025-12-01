@@ -1,7 +1,158 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Google\Cloud\Storage\StorageClient;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+
+// Add this to routes/web.php for testing
+
+
+Route::get('/test-gcs', function () {
+    try {
+        // Test 1: Check if config is loaded
+        $config = config('filesystems.disks.gcs');
+        dump('Config loaded:', $config);
+
+        // Test 2: Check if key file exists
+        $keyFilePath = env('GOOGLE_APPLICATION_CREDENTIALS');
+        var_dump($keyFilePath);
+        dump('Key file exists:', file_exists($keyFilePath));
+
+        // Test 3: Check if key file is readable
+        if (file_exists($keyFilePath)) {
+            $keyContent = json_decode(file_get_contents($keyFilePath), true);
+            dump('Key file valid JSON:', !is_null($keyContent));
+            dump('Project ID in key file:', $keyContent['project_id'] ?? 'NOT FOUND');
+        }
+
+        // Test 4: Try to connect directly
+        $storageClient = new StorageClient([
+            'projectId' => env('GCP_PROJECT_ID'),
+            'keyFilePath' => $keyFilePath,
+        ]);
+
+        $bucketName = env('GCP_BUCKET');
+        dump('Bucket name:', $bucketName);
+
+        // Test 5: Check if bucket exists and is accessible
+        $bucket = $storageClient->bucket($bucketName);
+        dump('Bucket exists:', $bucket->exists());
+
+        if ($bucket->exists()) {
+            // Test 6: Try to list objects (limit to 1)
+            $objects = $bucket->objects(['maxResults' => 1]);
+            dump('Can list objects:', true);
+
+            // Test 7: Try using Laravel Storage
+            $t = \Illuminate\Support\Facades\Storage::disk('gcs')->put('test.txt', 'Hello World');
+            dump('File uploaded successfully!>>>>>>>>>>' . $t);
+
+            // Test 8: Check if file exists
+            $exists = \Illuminate\Support\Facades\Storage::disk('gcs')->exists('test.txt');
+            dump('File exists check:', $exists);
+
+            // Test 9: Get the URL
+            $url = $url = "https://storage.googleapis.com/" . env('GCP_BUCKET') . "/" . 'test.txt';
+            dump('File URL:', $url);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'GCS is working correctly!',
+                'url' => $url
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Bucket does not exist or is not accessible'
+        ], 400);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
+
+Route::get('/direct-upload', function () {
+    $storageClient = new \Google\Cloud\Storage\StorageClient([
+        'projectId' => env('GCP_PROJECT_ID'),
+        'keyFilePath' => env('GOOGLE_APPLICATION_CREDENTIALS'),
+    ]);
+
+    $bucket = $storageClient->bucket(env('GCP_BUCKET'));
+
+    // Upload directly
+    $object = $bucket->upload(
+        'Direct upload test - ' . now(),
+        [
+            'name' => 'direct-test-' . time() . '.txt',
+            'metadata' => [
+                'contentType' => 'text/plain',
+            ]
+        ]
+    );
+
+    // List all objects
+    $objects = [];
+    foreach ($bucket->objects() as $object) {
+        $objects[] = $object->name();
+    }
+
+    return response()->json([
+        'message' => 'Direct upload successful',
+        'uploaded_file' => $object->name(),
+        'all_objects' => $objects
+    ]);
+});
+
+
+Route::get('/test-laravel-storage', function () {
+    try {
+        $filename = 'laravel-test-' . time() . '.txt';
+        $content = 'Laravel Storage Test - ' . now();
+
+        // Upload using Laravel Storage
+        $result = Storage::disk('gcs')->put($filename, $content);
+
+        dump('Put result:', $result);
+        dump('Filename:', $filename);
+
+        // Check if it exists
+        $exists = Storage::disk('gcs')->exists($filename);
+        dump('File exists:', $exists);
+
+        // List all files
+        $allFiles = Storage::disk('gcs')->files();
+        dump('All files:', $allFiles);
+
+        // Get the content back
+        if ($exists) {
+            $readContent = Storage::disk('gcs')->get($filename);
+            dump('Content:', $readContent);
+        }
+
+        return response()->json([
+            'success' => true,
+            'filename' => $filename,
+            'exists' => $exists,
+            'all_files' => $allFiles
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
 });

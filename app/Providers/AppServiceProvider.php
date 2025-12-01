@@ -3,11 +3,16 @@
 namespace App\Providers;
 
 use App\Support\SettingsManager;
+use Google\Cloud\Storage\StorageClient;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Queue\Events\JobFailed;
+use League\Flysystem\Filesystem;
+use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +43,5 @@ class AppServiceProvider extends ServiceProvider
         if (env('APP_ENV') == 'production') {
             $url->forceScheme('https');
         }
-
     }
 }

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redis;
 
+Route::get('/test', [BooksController::class, 'test']);
 
 //health checks
 Route::get('/health/deep', function () {

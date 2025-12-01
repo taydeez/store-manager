@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Google\Cloud\Storage\StorageClient;
-use App\Filesystem\GcsFilesystemAdapter;
+use App\FileSystem_temp\GcsFilesystemAdapter;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;

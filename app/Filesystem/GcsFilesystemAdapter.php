@@ -6,7 +6,7 @@
  */
 
 
-namespace App\FileSystem_temp;
+namespace App\Filesystem;
 
 use Illuminate\Filesystem\FilesystemAdapter;
 

@@ -76,75 +76,72 @@ Route::middleware(['ForceJson', 'client.auth'])->group(function () {
 Route::middleware(['jwt.auth', 'ForceJson', 'client.auth'])->group(function () {
 
     //users
-    Route::get('/account/users', [AuthController::class, 'index'])->name('users')->middleware('role:admin');
-    Route::get('/account/user', [AuthController::class, 'getUser'])->name('user.api');
-    Route::get('/account/user/{id}', [AuthController::class, 'getUser'])->name('user.account.api');
-    Route::post('/account/create', [AuthController::class, 'createUser'])->name('user.create.api');
-    Route::patch('/account/update', [AuthController::class, 'updateUser'])->name('user.update.api');
+    Route::get('/account/users', [AuthController::class, 'index'])->middleware('permission:manage_users');
+    Route::get('/account/user', [AuthController::class, 'getUser']);
+    Route::get('/account/user/{id}', [AuthController::class, 'getUser']);
+    Route::post('/account/create', [AuthController::class, 'createUser'])->middleware('permission:add_users');
+    Route::patch('/account/update', [AuthController::class, 'updateUser'])->middleware('permission:manage_users');
 
 
     //Book routes
-    Route::get('/books', [BooksController::class, 'index'])->name('books.index')->middleware('role:admin');
-    Route::get('/books/{id}', [BooksController::class, 'show'])->name('books.show')->middleware('role:admin');
-    Route::post('/books', [BooksController::class, 'store'])->name('books.store')->middleware('role:admin');
+    Route::get('/books', [BooksController::class, 'index'])->middleware('permission:list_all_books');
+    Route::get('/books/{id}', [BooksController::class, 'show'])->middleware('permission:list_all_books');
+    Route::post('/books', [BooksController::class, 'store'])->middleware('permission:add_books');
     Route::post('/books/update/{id}',
-        [BooksController::class, 'update'])->name('books.update')->middleware('role:admin');
-    Route::delete('/books/{id}', [BooksController::class, 'destroy'])->name('books.destroy')->middleware('role:admin');
+        [BooksController::class, 'update'])->middleware('permission:edit_books');
+    Route::delete('/books/{id}', [BooksController::class, 'destroy'])->middleware('role:admin');
     Route::patch('/books/shelf/{id}',
-        [BooksController::class, 'shelf'])->name('books.shelve')->middleware('role:admin');
+        [BooksController::class, 'shelf'])->middleware('permission:edit_books');
 
 
     //Stock Management route
     Route::post('/stock/update',
-        [StockController::class, 'updateStock'])->name('stock.update')->middleware('role:admin');
+        [StockController::class, 'updateStock'])->middleware('permission:manage_all_stock|manage_store_stock');
 
     // Manage Store fronts
-    Route::apiResource('/storefronts', StoreFrontController::class)->scoped()->middleware('role:admin');
+    Route::apiResource('/storefronts', StoreFrontController::class)->middleware('permission:list_all_stores|manage_all_stores|manage_store_stock');
 
 
     //Store inventory
-    Route::get('/storeinventory', [StoreInventoryController::class, 'index'])->middleware('role:admin');
-    Route::post('/storeinventory', [StoreInventoryController::class, 'createInventory'])->middleware('role:admin');
+    Route::get('/storeinventory', [StoreInventoryController::class, 'index'])->middleware('permission:list_all_stores|manage_all_stock|manage_store_stock|sell_books');
+    Route::post('/storeinventory', [StoreInventoryController::class, 'createInventory'])->middleware('permission:update_inventory');
     Route::patch('/storeinventory/update',
-        [StoreInventoryController::class, 'updateInventory'])->middleware('role:admin');
+        [StoreInventoryController::class, 'updateInventory'])->middleware('permission:update_inventory');
 
 
     //Customers
-    Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index'])->middleware('role:admin');
-    Route::get('/customers/{phone_number}', [\App\Http\Controllers\CustomerController::class, 'show'])->middleware('role:admin');
-    Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store'])->middleware('role:admin');
+    Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index'])->middleware('permission:list_all_customers');
+    Route::get('/customers/{phone_number}', [\App\Http\Controllers\CustomerController::class, 'show'])->middleware('permission:sell_books|list_all_customers');
+    Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store'])->middleware('permission:sell_books|list_all_customers');
     Route::delete('/customers/{id}',
         [\App\Http\Controllers\CustomerController::class, 'destroy'])->middleware('role:admin');
 
 
     //orders
-    Route::get('/orders', [OrdersController::class, 'index'])->middleware('role:admin');
-    Route::post('/orders', [OrdersController::class, 'createOrder'])->middleware('role:admin');
-    Route::post('/orders/cancel', [OrdersController::class, 'cancelOrder'])->middleware('role:admin');
+    Route::get('/orders', [OrdersController::class, 'index'])->middleware('permission:list_all_orders|sell_books');
+    Route::post('/orders', [OrdersController::class, 'createOrder'])->middleware('permission:sell_books');
+    Route::post('/orders/cancel', [OrdersController::class, 'cancelOrder'])->middleware('permission:cancel_orders');
 
 
     //statistics
-    Route::get('/statistics/monthly-sales', [StatisticsController::class, 'monthlySalesStatistics'])->middleware('role:admin');
+    Route::get('/statistics/monthly-sales', [StatisticsController::class, 'monthlySalesStatistics'])->middleware('permission:view_dashboard');
 
-    Route::get('/statistics/best-sellers', [StatisticsController::class, 'bestSellers'])->middleware('role:admin');
+    Route::get('/statistics/best-sellers', [StatisticsController::class, 'bestSellers'])->middleware('permission:view_dashboard');
 
-    Route::get('/statistics/out-of-stock', [StatisticsController::class, 'lowAndOutofStock'])->middleware('role:admin');
+    Route::get('/statistics/out-of-stock', [StatisticsController::class, 'lowAndOutofStock'])->middleware('permission:view_dashboard');
 
     //RABC
     Route::get('/rbac/roles',
-        [\App\Http\Controllers\RolesAndPermissionsController::class, 'index'])->middleware('role:admin');
+        [\App\Http\Controllers\RolesAndPermissionsController::class, 'index'])->middleware('permission:list_all_rbac');
 
     Route::post('/rbac/role/create',
-        [\App\Http\Controllers\RolesAndPermissionsController::class, 'create'])->middleware('role:admin');
+        [\App\Http\Controllers\RolesAndPermissionsController::class, 'create'])->middleware('permission:update_rbac');
 
     Route::post('/rbac/role/update',
-        [\App\Http\Controllers\RolesAndPermissionsController::class, 'updatePermissions'])->middleware('role:admin');
+        [\App\Http\Controllers\RolesAndPermissionsController::class, 'updatePermissions'])->middleware('permission:update_rbac');
 
 
     Route::get('/rbac/permissions',
-        [\App\Http\Controllers\RolesAndPermissionsController::class, 'permissions'])->middleware('role:admin');
-
-    Route::get('/admin-only', fn() => ['message' => ' Admin only area']);
-
+        [\App\Http\Controllers\RolesAndPermissionsController::class, 'permissions'])->middleware('permission:list_all_rbac');
 
 });

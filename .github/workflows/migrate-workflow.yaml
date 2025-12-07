@@ -44,7 +44,13 @@ jobs:
             --set-env-vars DB_PORT=3306 \
             --set-env-vars DB_CONNECTION=mysql \
             --set-env-vars DB_DATABASE=bookstore \
-            --set-env-vars LOG_CHANNEL=stderr \
+            --set-env-vars LOG_CHANNEL=database \
+            --set-env-vars CACHE_STORE=array \
+            --set-env-vars FILESYSTEM_DISK=gcs \
+            --set-env-vars GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }} \
+            --set-env-vars GCP_BUCKET=bookstore-laravel \
+            --set-env-vars VISIBILITY=public \
+            --set-env-vars APP_URL=https://store-manager-fe-m9rm-ax7j9ku8o-demis-projects-21e0bf22.vercel.app \
             --command php \
             --args "artisan,migrate,--seed,--force"
 

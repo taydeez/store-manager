@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+
         Book::factory(50)->create();
 
         StoreInventory::factory(50)->create();

@@ -52,7 +52,7 @@ jobs:
             --set-env-vars VISIBILITY=public \
             --set-env-vars APP_URL=https://store-manager-fe-m9rm-ax7j9ku8o-demis-projects-21e0bf22.vercel.app \
             --command php \
-            --args "artisan,migrate,--seed,--force"
+            --args "artisan,migrate:fresh,--seed"
 
       - name: Execute Job
         run: |

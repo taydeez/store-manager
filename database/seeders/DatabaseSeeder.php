@@ -15,7 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(5)->create();
+        //User::factory(5)->create();
+
+        $this->call(UserSeeder::class);
 
         foreach (range(1, 5) as $userId) {
             StoreFront::factory()->create([

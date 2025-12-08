@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Swagger;
 
 /**
  * @OA\Info(
- *     title="Your API Name",
+ *     title="Bookstore Api",
  *     version="1.0.0",
- *     description="API documentation for your Laravel application",
+ *     description="API documentation for Books Sales shop",
  *     @OA\Contact(
- *         email="your-email@example.com"
+ *         email="demioyewusi@gmail.com"
  *     )
  * )
  *

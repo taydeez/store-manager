@@ -20,7 +20,7 @@ class BooksController extends Controller
 
     public function index(): JsonResponse
     {
-        $books = Book::filter()->get();
+        $books = Book::filter()->OrderBy('created_at', 'desc')->get();
         return ApiResponse::success(BookResource::collection($books));
     }
 
@@ -50,7 +50,7 @@ class BooksController extends Controller
         try {
 
             $book = $books->where('id', $id)->first();
-            
+
             $url = null;
 
             if ($request->hasFile('image')) {

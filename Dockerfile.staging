@@ -60,7 +60,7 @@ RUN php artisan optimize:clear
 FROM php:8.3-cli-alpine
 
 # Runtime packages
-RUN apk add --no-cache bash curl icu-dev libzip-dev libpng libstdc++ zlib
+RUN apk add --no-cache bash curl icu-dev libzip-dev libpng libstdc++ zlib postgresql-libs
 
 # Copy PHP extensions and config from build
 COPY --from=build /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/

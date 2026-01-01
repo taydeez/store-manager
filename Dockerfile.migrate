@@ -7,11 +7,13 @@ FROM php:8.3-cli-alpine
 RUN apk add --no-cache \
     bash git curl unzip zip \
     libzip-dev icu-dev oniguruma-dev zlib-dev \
-    mariadb-client \
+    postgresql-dev \
+    postgresql-libs \
     autoconf gcc g++ make
 
+
 # PHP extensions needed by Laravel
-RUN docker-php-ext-install pdo_mysql bcmath intl zip
+RUN docker-php-ext-install bcmath intl zip pdo_pgsql
 
 # Redis (optional)
 RUN pecl install redis && docker-php-ext-enable redis

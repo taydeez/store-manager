@@ -25,7 +25,7 @@ Route::get('/health/deep', function () {
         $checks['database'] = 'ok';
     } catch (\Exception $e) {
         $checks['database'] = 'failed';
-        dd($e->getMessage());
+        $checks['database_error'] = $e->getMessage();
     }
 
     // Redis

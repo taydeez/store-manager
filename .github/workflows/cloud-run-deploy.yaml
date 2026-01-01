@@ -40,17 +40,19 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --port 8080 \
-            --add-cloudsql-instances ${{ secrets.CLOUD_SQL_CONNECTION_NAME }} \
+            --network=default \
+            --subnet=default \
+            --vpc-egress=private-ranges-only \
             --set-secrets DB_PASSWORD=bookstore-db-pwd:latest \
             --set-secrets APP_KEY=APP_KEY:latest \
             --set-secrets JWT_SECRET=JWT_SECRET:latest \
             --set-env-vars APP_ENV=development \
-            --set-env-vars DB_USERNAME=bookstore_user \
-            --set-env-vars DB_HOST=/cloudsql/bookstore-staging:europe-west1:free-trial-first-project \
-            --set-env-vars DB_SOCKET=/cloudsql/bookstore-staging:europe-west1:free-trial-first-project \
-            --set-env-vars DB_PORT=3306 \
-            --set-env-vars DB_CONNECTION=mysql \
+            --set-env-vars DB_USERNAME=bookstore \
+            --set-env-vars DB_HOST=10.132.0.2 \
+            --set-env-vars DB_PORT=5432 \
+            --set-env-vars DB_CONNECTION=pgsql \
             --set-env-vars DB_DATABASE=bookstore \
+            --set-env-vars DB_SSLMODE=disable \
             --set-env-vars LOG_CHANNEL=database \
             --set-env-vars CACHE_STORE=array \
             --set-env-vars FILESYSTEM_DISK=gcs \

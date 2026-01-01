@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
 
         foreach (range(1, 5) as $id) {
             DB::table('users')->updateOrInsert(
-                ['id' => $id], // lookup condition
+                ['id' => $id],
                 [
                     'store_front_id' => $id
                 ]);

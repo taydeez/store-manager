@@ -8,6 +8,7 @@ RUN apk add --no-cache \
     bash git curl unzip zip \
     autoconf gcc g++ make linux-headers \
     libpng-dev libzip-dev icu-dev oniguruma-dev zlib-dev openssl-dev \
+        postgresql-dev \
         build-base \
         brotli-dev \
         pcre2-dev \
@@ -15,7 +16,15 @@ RUN apk add --no-cache \
         linux-headers
 
 # PHP Extensions
-RUN docker-php-ext-install pdo_mysql bcmath gd intl zip pcntl
+RUN docker-php-ext-install \
+    pdo_mysql \
+    pdo_pgsql \
+    pgsql \
+    bcmath \
+    gd \
+    intl \
+    zip \
+    pcntl
 
 # Install Swoole (required for Octane)
 RUN pecl install swoole \

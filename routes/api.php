@@ -50,6 +50,10 @@ Route::get('/health/deep', function () {
     return response()->json([
         'status' => $healthy ? 'healthy' : 'unhealthy',
         'checks' => $checks,
+        'db_drivers' => [
+            'pdo_pgsql' => extension_loaded('pdo_pgsql'),
+            'pgsql' => extension_loaded('pgsql'),
+        ]
     ], $healthy ? 200 : 503);
 });
 

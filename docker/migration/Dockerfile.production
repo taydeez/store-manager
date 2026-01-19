@@ -67,4 +67,4 @@ RUN rm -f bootstrap/cache/config.php
 # Runtime command (env exists here)
 # ------------------------------------------
 #CMD php artisan migrate --force && php artisan db:seed --force
-CMD php artisan migrate:fresh --seed
+CMD php artisan migrate:fresh --force && php artisan db:seed --force

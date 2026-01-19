@@ -39,7 +39,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool)env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -99,9 +99,11 @@ return [
 
     'key' => env('APP_KEY'),
 
+    'x_api_key' => env('APP_X_API_KEY'),
+
     'previous_keys' => [
         ...array_filter(
-            explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
+            explode(',', (string)env('APP_PREVIOUS_KEYS', ''))
         ),
     ],
 

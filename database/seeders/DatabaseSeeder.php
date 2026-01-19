@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\{Book, Customer, Order, StoreFront, StoreInventory, User};
+use Database\Seeders\Production\ProductionUserSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -46,7 +47,7 @@ class DatabaseSeeder extends Seeder
         }
 
         if (config('app.env') === 'production') {
-            $this->call(UserSeeder::class);
+            $this->call(ProductionUserSeeder::class);
         }
 
 

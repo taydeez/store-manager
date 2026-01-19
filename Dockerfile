@@ -1,58 +1,116 @@
-# Stage 1: Build dependencies
-FROM php:8.3-fpm-alpine AS build
-
-RUN apk add --no-cache \
-    autoconf gcc g++ make bash \
-    libpng-dev oniguruma-dev libzip-dev \
-    zip unzip curl git icu-dev zlib-dev mariadb-client
-
-# Install PHP extensions
-RUN docker-php-ext-install \
-    pdo_mysql bcmath gd zip opcache intl
-
-RUN pecl install redis && docker-php-ext-enable redis
-
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-WORKDIR /app
-
-# Copy full app BEFORE composer
-COPY . .
-
-RUN composer install --prefer-dist --optimize-autoloader
-
-# DO NOT RUN ANY ARTISAN OPTIMIZE COMMANDS HERE
-# Cloud Run needs dynamic env loading
-
-
-# -----------------------------
-# Stage 2: Production image
-# -----------------------------
 FROM php:8.3-fpm-alpine
 
+# =========================
+# System dependencies
+# =========================
 RUN apk add --no-cache \
-    nginx bash mariadb-client \
-    libpng-dev oniguruma-dev libzip-dev \
-    zip unzip icu-dev zlib-dev curl git
+    nginx \
+    supervisor \
+    bash \
+    curl \
+    git \
+    unzip \
+    libzip-dev \
+    icu-dev \
+    oniguruma-dev \
+    zlib-dev \
+    postgresql-dev \
+    mariadb-dev \
+    redis \
+    $PHPIZE_DEPS
 
-COPY --from=build /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
-COPY --from=build /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
-COPY --from=build /usr/bin/composer /usr/bin/composer
-COPY --from=build /app/vendor /app/vendor
+# =========================
+# PHP extensions
+# =========================
+RUN docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    bcmath \
+    intl \
+    zip \
+    opcache \
+    pcntl \
+    posix \
+    && pecl install redis \
+    && docker-php-ext-enable redis
 
-WORKDIR /app
+# =========================
+# Composer
+# =========================
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# =========================
+# App directory
+# =========================
+WORKDIR /var/www/html
+
+# Copy application source
 COPY . .
 
-COPY docker/nginx/nginx.conf /etc/nginx/http.d/default.conf
-COPY docker/php/php_dev.ini /usr/local/etc/php/conf.d/custom.ini
+# =========================
+# Installing horizon manually here because it
+# messes up my local windows composer
+# =========================
 
-RUN chown -R www-data:www-data storage bootstrap/cache
+# =========================
+# Install PHP dependencies FIRST
+# =========================
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction
 
-# DO NOT CACHE ROUTES OR CONFIG OR VIEWS
-# Cloud Run injects env vars — caching breaks everything
 
+
+
+# Ensure no cached config is baked into image
+RUN rm -f bootstrap/cache/config.php
+
+
+
+# =========================
+# Laravel runtime directories
+# =========================
+RUN mkdir -p \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache
+
+# Permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 storage bootstrap/cache
+
+# =========================
+# Nginx config
+# =========================
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# =========================
+# Supervisor config
+# =========================
+COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
+
+# =========================
+# PHP-FPM config tweaks
+# =========================
+RUN sed -i 's|listen = 127.0.0.1:9000|listen = 9000|' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's|;clear_env = no|clear_env = no|' /usr/local/etc/php-fpm.d/www.conf
+
+# =========================
+# Expose port
+# =========================
 EXPOSE 8080
 
-CMD ["sh", "-c", "php-fpm -F & nginx -g 'daemon off;'"]
+# =========================
+# Entrypoint
+# =========================
+COPY docker/entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["sh", "/entrypoint.sh"]
+
+# =========================
+# Start services
+# =========================
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

@@ -114,15 +114,15 @@ class RolePermissionSeeder extends Seeder
         $user_1 = User::find(1);
         $user_1->assignRole('admin');
 
-        $user_2 = User::find(2);
-        $user_2->assignRole('manager');
+        if (config('app.env') === 'local') {
+            $user_2 = User::find(2);
+            $user_2->assignRole('manager');
 
-        $user_3 = User::find(3);
-        $user_3->assignRole('store_manager');
+            $user_3 = User::find(3);
+            $user_3->assignRole('store_manager');
 
-        $user_4 = User::find(4);
-        $user_4->assignRole('seller');
-
-
+            $user_4 = User::find(4);
+            $user_4->assignRole('seller');
+        }
     }
 }

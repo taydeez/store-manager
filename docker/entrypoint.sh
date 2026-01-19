@@ -1,22 +1,21 @@
-#
-# /*
-#  * © ${YEAR} Demilade Oyewusi
-#  * Licensed under the MIT License.
-#  * See the LICENSE file for details.
-#  */
-#
+#!/usr/bin/env sh
+set -e
 
-[supervisord]
-nodaemon=true
+# Clear stale caches (safe)
+php artisan view:clear
+php artisan event:clear
+php artisan route:clear
+php artisan config:clear
 
-[program:php-fpm]
-command=/bin/sh -c " php-fpm"
-priority=10
-autostart=true
-autorestart=true
+# Now cache using RUNTIME env vars (SAFE)
+php artisan optimize
 
-[program:nginx]
-command=nginx -g "daemon off;"
-priority=20
-autostart=true
-autorestart=true
+# Start Nightwatch agent (prod only, non-blocking)
+if  [ "$NIGHTWATCH_ENABLED" = "true" ]; then
+  echo "Starting Nightwatch agent..."
+  php artisan nightwatch:agent &
+fi
+
+# Hand off to the real command (php-fpm / server)
+exec "$@"
+

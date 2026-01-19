@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\{Book, Customer, Order, StoreFront, StoreInventory, User};
+use Database\Seeders\Production\ProductionApiKeySeeder;
 use Database\Seeders\Production\ProductionUserSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -44,14 +45,16 @@ class DatabaseSeeder extends Seeder
             Customer::factory(50)->create();
 
             Order::factory(30)->create();
+
+            $this->call(ApiKeySeeder::class);
         }
 
         if (config('app.env') === 'production') {
             $this->call(ProductionUserSeeder::class);
+            $this->call(ProductionApiKeySeeder::class);
         }
 
 
-        $this->call(ApiKeySeeder::class);
         $this->call(RolePermissionSeeder::class);
     }
 }

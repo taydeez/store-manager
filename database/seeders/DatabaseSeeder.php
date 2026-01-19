@@ -17,30 +17,37 @@ class DatabaseSeeder extends Seeder
     {
         //User::factory(5)->create();
 
-        $this->call(UserSeeder::class);
+        if (config('app.env') === 'local') {
+            $this->call(UserSeeder::class);
 
-        foreach (range(1, 5) as $userId) {
-            StoreFront::factory()->create([
-                'user_id' => $userId,
-            ]);
-        }
-
-        foreach (range(1, 5) as $id) {
-            DB::table('users')->updateOrInsert(
-                ['id' => $id],
-                [
-                    'store_front_id' => $id
+            foreach (range(1, 5) as $userId) {
+                StoreFront::factory()->create([
+                    'user_id' => $userId,
                 ]);
+            }
+
+            foreach (range(1, 5) as $id) {
+                DB::table('users')->updateOrInsert(
+                    ['id' => $id],
+                    [
+                        'store_front_id' => $id
+                    ]
+                );
+            }
+
+
+            Book::factory(50)->create();
+
+            StoreInventory::factory(50)->create();
+
+            Customer::factory(50)->create();
+
+            Order::factory(30)->create();
         }
 
-
-        Book::factory(50)->create();
-
-        StoreInventory::factory(50)->create();
-
-        Customer::factory(50)->create();
-
-        Order::factory(30)->create();
+        if (config('app.env') === 'production') {
+            $this->call(UserSeeder::class);
+        }
 
 
         $this->call(ApiKeySeeder::class);

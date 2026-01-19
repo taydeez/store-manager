@@ -15,7 +15,7 @@ class ProductionUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::insert([
+        User::insertOrIgnore([
 
             [
                 'name' => "Super Admin",

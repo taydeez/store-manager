@@ -17,42 +17,58 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
 // Create roles and permissions
-        $admin = Role::create(['name' => 'admin', 'guard_name' => 'api']);
-        $manager = Role::create(['name' => 'manager', 'guard_name' => 'api']);
-        $store_manager = Role::create(['name' => 'store_manager', 'guard_name' => 'api']);
-        $seller = Role::create(['name' => 'seller', 'guard_name' => 'api']);
+        Role::insertOrIgnore(['name' => 'admin', 'guard_name' => 'api']);
+        Role::insertOrIgnore(['name' => 'manager', 'guard_name' => 'api']);
+        Role::insertOrIgnore(['name' => 'store_manager', 'guard_name' => 'api']);
+        Role::insertOrIgnore(['name' => 'seller', 'guard_name' => 'api']);
+
+        $admin = Role::where('name', 'admin')
+            ->where('guard_name', 'api')
+            ->first();
+
+        $manager = Role::where('name', 'manager')
+            ->where('guard_name', 'api')
+            ->first();
+
+        $store_manager = Role::where('name', 'store_manager')
+            ->where('guard_name', 'api')
+            ->first();
+
+        $seller = Role::where('name', 'seller')
+            ->where('guard_name', 'api')
+            ->first();
 
 
-        Permission::create(['name' => 'view_dashboard', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'view_dashboard', 'guard_name' => 'api']);
 
-        Permission::create(['name' => 'add_books', 'guard_name' => 'api']);
-        Permission::create(['name' => 'delete_books', 'guard_name' => 'api']);
-        Permission::create(['name' => 'list_all_books', 'guard_name' => 'api']);
-        Permission::create(['name' => 'edit_books', 'guard_name' => 'api']);
-        Permission::create(['name' => 'shelve_books', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'add_books', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'delete_books', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'list_all_books', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'edit_books', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'shelve_books', 'guard_name' => 'api']);
 
-        Permission::create(['name' => 'manage_all_stock', 'guard_name' => 'api']);
-        Permission::create(['name' => 'manage_store_stock', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'manage_all_stock', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'manage_store_stock', 'guard_name' => 'api']);
 
-        Permission::create(['name' => 'add_stores', 'guard_name' => 'api']);
-        Permission::create(['name' => 'delete_stores', 'guard_name' => 'api']);
-        Permission::create(['name' => 'list_all_stores', 'guard_name' => 'api']);
-        Permission::create(['name' => 'edit_store', 'guard_name' => 'api']);
-        Permission::create(['name' => 'update_inventory', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'add_stores', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'delete_stores', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'list_all_stores', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'edit_store', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'update_inventory', 'guard_name' => 'api']);
 
-        Permission::create(['name' => 'list_all_orders', 'guard_name' => 'api']);
-        Permission::create(['name' => 'cancel_orders', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'list_all_orders', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'cancel_orders', 'guard_name' => 'api']);
 
-        Permission::create(['name' => 'list_all_customers', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'list_all_customers', 'guard_name' => 'api']);
 
-        Permission::create(['name' => 'sell_books', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'sell_books', 'guard_name' => 'api']);
 
-        Permission::create(['name' => 'manage_users', 'guard_name' => 'api']);
-        Permission::create(['name' => 'add_users', 'guard_name' => 'api']);
-        Permission::create(['name' => 'list_all_users', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'manage_users', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'add_users', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'list_all_users', 'guard_name' => 'api']);
 
-        Permission::create(['name' => 'update_rbac', 'guard_name' => 'api']);
-        Permission::create(['name' => 'list_all_rbac', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'update_rbac', 'guard_name' => 'api']);
+        Permission::insertOrIgnore(['name' => 'list_all_rbac', 'guard_name' => 'api']);
 
 
 // Assign permissions to roles
@@ -111,8 +127,11 @@ class RolePermissionSeeder extends Seeder
         ]);
 
 // Assign role to user
+
         $user_1 = User::find(1);
-        $user_1->assignRole('admin');
+        if (!$user_1->hasRole('admin')) {
+            $user_1->assignRole('admin');
+        }
 
         if (config('app.env') === 'local') {
             $user_2 = User::find(2);

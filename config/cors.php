@@ -8,7 +8,7 @@ return [
         'http://localhost:3000',
         'https://store-manager-fe-m9rm-mpfwtqqv5-demis-projects-21e0bf22.vercel.app',
         'https://store-manager-fe-m9rm-ax7j9ku8o-demis-projects-21e0bf22.vercel.app',
-        'https://books.saintscommunityportal.com'
+        'https://books.lwmportal.com'
     ],
 
     'supports_credentials' => false,

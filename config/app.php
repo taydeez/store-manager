@@ -99,7 +99,7 @@ return [
 
     'key' => env('APP_KEY'),
 
-    'x_api_key' => env('APP_X_API_KEY'),
+    'x_api_key' => env('X_API_KEY'),
 
     'previous_keys' => [
         ...array_filter(

@@ -5,7 +5,8 @@ use Google\Cloud\Storage\StorageClient;
 use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
-    return view('welcome');
+    //return view('welcome');
+    return config('app.x_api_key');
 });
 
 
@@ -71,7 +72,6 @@ Route::get('/test-gcs', function () {
             'status' => 'error',
             'message' => 'Bucket does not exist or is not accessible'
         ], 400);
-
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
@@ -148,7 +148,6 @@ Route::get('/test-laravel-storage', function () {
             'exists' => $exists,
             'all_files' => $allFiles
         ]);
-
     } catch (\Exception $e) {
         return response()->json([
             'error' => $e->getMessage(),

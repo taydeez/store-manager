@@ -22,7 +22,7 @@ class ProductionApiKeySeeder extends Seeder
                 'domain' => '*',
                 'api_key' => config('app.x_api_key'),
                 'created_at' => '2026-01-01 00:00:00',
-                'expires_at' => '2027-01-01 00:00:00',
+                'expires_in' => 120
             ],
         );
     }

@@ -22,6 +22,8 @@ class Book extends Model
     protected $casts = [
         'tags' => 'array',
         'available' => BooleanStringCast::class,
+        'created_at' => 'datetime:Y-m-d',
+        'updated_at' => 'datetime:Y-m-d',
     ];
 
     protected static function booted()
@@ -44,7 +46,6 @@ class Book extends Model
                 ? asset('storage/' . $this->image_url)
                 : null;
         }
-
     }
 
     public function latestStock()
@@ -76,12 +77,11 @@ class Book extends Model
      * @return \App\Models\Book
      */
     public function updateMainStock(
-        int    $add = 0,
-        int    $remove = 0,
+        int $add = 0,
+        int $remove = 0,
         string $description = 'update book stock',
-        bool   $update_grand = false
-    )
-    {
+        bool $update_grand = false
+    ) {
         $stock = $this->stocks()->latest()->first();
 
         $main_value = $stock?->main_store_quantity ?? 0;

@@ -28,15 +28,14 @@ class StockController extends Controller
         try {
             $book = Book::where('id', $request->book_id)->first();
 
-            $book->updateStock(
-                add: (int) $request->add,
-                remove: (int) $request->remove,
+            $book->updateMainStock(
+                add: (int)$request->add,
+                remove: (int)$request->remove,
                 description: $request->description ?? 'Stock adjustment from main store',
                 update_grand: true
             );
 
             return ApiResponse::success([], 'Stock updated successfully');
-
         } catch (\Exception $e) {
             Log::error('update stock error', ['exception' => $e->getMessage()]);
             return ApiResponse::error('Could not update stock', 500);

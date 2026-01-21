@@ -12,6 +12,21 @@ class Stock extends Model
     /** @use HasFactory<\Database\Factories\StockFactory> */
     use SoftDeletes, HasFactory;
 
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d',
+        'updated_at' => 'datetime:Y-m-d',
+    ];
+    protected $fillable = [
+        'book_id',
+        'user_id',
+        'main_store_quantity',
+        'grand_quantity',
+        'added',
+        'removed',
+        'description'
+    ];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+
     public static function boot()
     {
         parent::boot();
@@ -23,13 +38,6 @@ class Stock extends Model
             }
         });
     }
-
-
-    protected $fillable = [
-        'book_id', 'user_id', 'main_store_quantity', 'grand_quantity', 'added', 'removed', 'description'
-    ];
-
-    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
     public function book()
     {

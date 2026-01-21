@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 set -e
 
+# Generate api swagger docs
+php artisan l5-swagger:generate
+
 # Clear stale caches (safe)
 php artisan view:clear
 php artisan event:clear

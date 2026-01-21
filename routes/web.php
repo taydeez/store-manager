@@ -1,12 +1,14 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Google\Cloud\Storage\StorageClient;
 use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     //return view('welcome');
-    return config('app.x_api_key');
+    Log::channel('mysql')->error('upload error', ['exception' => 'test']);
+    return '';
 });
 
 
@@ -14,6 +16,11 @@ Route::get('/', function () {
 
 
 Route::get('/test-gcs', function () {
+    Storage::disk('gcs')->put('test.txt', 'Hello World');
+
+    return 'Done';
+
+
     try {
         // Test 1: Check if config is loaded
         $config = config('filesystems.disks.gcs');
@@ -31,10 +38,11 @@ Route::get('/test-gcs', function () {
             dump('Project ID in key file:', $keyContent['project_id'] ?? 'NOT FOUND');
         }
 
+
         // Test 4: Try to connect directly
         $storageClient = new StorageClient([
             'projectId' => env('GCP_PROJECT_ID'),
-            'keyFilePath' => $keyFilePath,
+            'keyFile' => $keyFilePath,
         ]);
 
         $bucketName = env('GCP_BUCKET');

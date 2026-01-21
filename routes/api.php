@@ -38,7 +38,7 @@ Route::get('/health/deep', function () {
 
     //Storage
     try {
-        Storage::disk()->put('health.txt', 'ok');
+        Storage::disk('gcs')->put('health.txt', 'ok');
         $checks['storage'] = 'ok';
         Storage::disk()->delete('health.txt');
     } catch (\Exception $e) {

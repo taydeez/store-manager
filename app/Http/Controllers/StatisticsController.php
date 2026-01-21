@@ -21,10 +21,17 @@ class StatisticsController extends Controller
         $months = array_fill(1, 12, 0);
 
         // Query completed orders grouped by month
-        $results = Order::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
-            ->whereYear('created_at', $year)
+        $results = Order::selectRaw(
+            '
+        EXTRACT(YEAR FROM created_at) as year,
+        EXTRACT(MONTH FROM created_at) as month,
+        SUM(total_amount) as total
+    '
+        )
             ->where('status', 'completed')
-            ->groupBy('month')
+            ->whereRaw('EXTRACT(YEAR FROM created_at) = ?', [$year])
+            ->groupByRaw('EXTRACT(YEAR FROM created_at), EXTRACT(MONTH FROM created_at)')
+            ->orderBy('month')
             ->pluck('total', 'month');
 
         // Fill the base array

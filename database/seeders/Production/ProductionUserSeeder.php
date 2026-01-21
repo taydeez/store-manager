@@ -19,7 +19,7 @@ class ProductionUserSeeder extends Seeder
 
             [
                 'name' => "Super Admin",
-                'email' => 'admin@sccportal.com',
+                'email' => 'admin@lwmportal.com',
                 'email_verified_at' => now(),
                 'password' => Hash::make('trending@123'),
                 'remember_token' => Str::random(10),

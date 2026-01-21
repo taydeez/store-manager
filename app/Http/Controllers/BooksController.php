@@ -48,13 +48,11 @@ class BooksController extends Controller
         }
 
         try {
-
             $book = $books->where('id', $id)->first();
 
             $url = null;
 
             if ($request->hasFile('image')) {
-
                 $old_path = $this->extractStoragePath($book->image_url);
                 Storage::delete($old_path);
 
@@ -83,11 +81,14 @@ class BooksController extends Controller
 
         // For GCS: https://storage.googleapis.com/bucket/photos/file.jpg
         if (str_contains($parsed['host'], 'storage.googleapis.com')) {
-            return ltrim(str_replace(
-                '/' . env('GCP_BUCKET'),
-                '',
-                $parsed['path']
-            ), '/');
+            return ltrim(
+                str_replace(
+                    '/' . env('GCP_BUCKET'),
+                    '',
+                    $parsed['path']
+                ),
+                '/'
+            );
         }
 
         // For local storage: http://localhost:8000/storage/photos/file.jpg
@@ -101,7 +102,7 @@ class BooksController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string:255',
+            'title' => 'required|string:255:unique:books',
             'quantity' => 'required|integer|min:1',
             'price' => 'required|integer|min:1',
             'added_by' => 'required|integer',
@@ -116,14 +117,13 @@ class BooksController extends Controller
         }
 
         try {
-
             $path = null;
             $url = null;
 
             if ($request->hasFile('image')) {
                 try {
-                    $image = $request->file('image');
-                    $filename = time() . '_' . $image->getClientOriginalName();
+//                    $image = $request->file('image');
+//                    $filename = time() . '_' . $image->getClientOriginalName();
 
 //                    $path = Storage::disk()->putFileAs(
 //                        'bookstore-images', // folder in bucket
@@ -131,10 +131,11 @@ class BooksController extends Controller
 //                        $filename
 //                    );
                     $path = $request->file('image')->store();
+
+                    
                     // Get public URL
                     //$url = "https://storage.googleapis.com/" . env('GCP_BUCKET') . "/" . $path;
                     $url = Storage::url($path);
-
                 } catch (\Exception $e) {
                     Log::error('upload error', ['exception' => $e->getMessage()]);
                 }
@@ -179,7 +180,6 @@ class BooksController extends Controller
         $book->available = !$book->available;
         $book->save();
         return ApiResponse::success([], "Book is $status successfully");
-
     }
 
     public function destroy(int $id): JsonResponse

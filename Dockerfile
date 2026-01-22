@@ -17,10 +17,10 @@ RUN apk add --no-cache \
     postgresql-dev \
     mariadb-dev \
     redis \
+    nano \
     $PHPIZE_DEPS
 
-RUN apk update && apk add --no-cache nano \
-    && apk del .build-deps
+RUN apk del .build-deps
 
 # =========================
 # PHP extensions

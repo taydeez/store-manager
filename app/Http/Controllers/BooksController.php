@@ -132,12 +132,13 @@ class BooksController extends Controller
 //                    );
                     $path = $request->file('image')->store();
 
-                    
+
                     // Get public URL
                     //$url = "https://storage.googleapis.com/" . env('GCP_BUCKET') . "/" . $path;
                     $url = Storage::url($path);
                 } catch (\Exception $e) {
                     Log::error('upload error', ['exception' => $e->getMessage()]);
+                    return ApiResponse::error('An Error has occurred', $e->getMessage(), 500);
                 }
             }
             $request->merge([
@@ -169,7 +170,7 @@ class BooksController extends Controller
             ], 500);
         } catch (\Exception $e) {
             Log::error('Create Book Error', ['exception' => $e->getMessage()]);
-            return ApiResponse::error('An Error has occurred', []);
+            return ApiResponse::error('An Error has occurred', $e->getMessage(), 500);
         }
     }
 

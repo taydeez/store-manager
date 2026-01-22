@@ -19,8 +19,6 @@ RUN apk add --no-cache \
     redis \
     $PHPIZE_DEPS
 
-RUN apk del .build-deps
-
 # =========================
 # PHP extensions
 # =========================

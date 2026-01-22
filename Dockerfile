@@ -17,7 +17,6 @@ RUN apk add --no-cache \
     postgresql-dev \
     mariadb-dev \
     redis \
-    nano \
     $PHPIZE_DEPS
 
 RUN apk del .build-deps

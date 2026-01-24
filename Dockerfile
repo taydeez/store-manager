@@ -82,10 +82,11 @@ RUN chown -R www-data:www-data /var/www/html \
 COPY docker/php-fpm/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 # =========================
-# PHP-FPM configuration
+# PHP-FPM logging overrides (SAFE)
 # =========================
-COPY docker/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.conf
-COPY docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY docker/php-fpm/zz-logging.conf /usr/local/etc/php-fpm.d/zz-logging.conf
+COPY docker/php-fpm/zz-www-logging.conf /usr/local/etc/php-fpm.d/zz-www-logging.conf
+
 
 # =========================
 # PHP-FPM log directories

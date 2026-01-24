@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
@@ -10,7 +11,7 @@ class StoreFrontResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
+            'user_id' => $this->user_id ?? null,
             'store_name' => $this->store_name,
             'store_address' => $this->store_address,
             'store_country' => $this->store_country,
@@ -19,7 +20,7 @@ class StoreFrontResource extends JsonResource
             'store_email' => $this->store_email,
             'is_active' => $this->is_active,
             'created_at' => $this->created_at,
-            'store_manager_name' => $this->user->name
+            'store_manager_name' => $this->user?->name ?? 'No Manager'
         ];
     }
 }

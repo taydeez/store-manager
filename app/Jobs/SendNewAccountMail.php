@@ -12,6 +12,7 @@ class SendNewAccountMail implements ShouldQueue
     use Queueable;
 
     public $details;
+
     /**
      * Create a new job instance.
      */
@@ -25,6 +26,6 @@ class SendNewAccountMail implements ShouldQueue
      */
     public function handle(): void
     {
-        Mail::to($this->details['email'])->send(new NewUserAccount($this->details));
+        Mail::to($this->details['email'])->queue(new NewUserAccount($this->details));
     }
 }

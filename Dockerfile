@@ -81,7 +81,6 @@ RUN chown -R www-data:www-data /var/www/html \
 # PHP configuration
 # =========================
 COPY docker/php-fpm/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
-COPY docker/php-fpm/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # =========================
 # PHP-FPM logging overrides (SAFE)

@@ -32,6 +32,7 @@ RUN docker-php-ext-install \
     opcache \
     pcntl \
     posix \
+    fileinfo \
     && pecl install redis \
     && docker-php-ext-enable redis
 
@@ -41,33 +42,25 @@ RUN docker-php-ext-install \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # =========================
-# App directory
+# Working directory
 # =========================
 WORKDIR /var/www/html
 
+# =========================
 # Copy application source
+# =========================
 COPY . .
 
 # =========================
-# Installing horizon manually here because it
-# messes up my local windows composer
-# =========================
-
-# =========================
-# Install PHP dependencies FIRST
+# Install PHP dependencies
 # =========================
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction
 
-
-
-
-# Ensure no cached config is baked into image
+# Ensure no cached config is baked in
 RUN rm -f bootstrap/cache/config.php
-
-
 
 # =========================
 # Laravel runtime directories
@@ -84,6 +77,25 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 storage bootstrap/cache
 
 # =========================
+# PHP configuration
+# =========================
+COPY docker/php-fpm/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
+# =========================
+# PHP-FPM configuration
+# =========================
+COPY docker/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.conf
+COPY docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
+
+# =========================
+# PHP-FPM log directories
+# =========================
+RUN mkdir -p /var/log/php-fpm \
+    && touch /var/log/php-fpm/error.log /var/log/php-fpm/access.log \
+    && chown -R www-data:www-data /var/log/php-fpm \
+    && chmod -R 755 /var/log/php-fpm
+
+# =========================
 # Nginx config
 # =========================
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
@@ -95,12 +107,6 @@ COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
 
 # =========================
-# PHP-FPM config tweaks
-# =========================
-RUN sed -i 's|listen = 127.0.0.1:9000|listen = 9000|' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's|;clear_env = no|clear_env = no|' /usr/local/etc/php-fpm.d/www.conf
-
-# =========================
 # Expose port
 # =========================
 EXPOSE 8080
@@ -109,6 +115,7 @@ EXPOSE 8080
 # Entrypoint
 # =========================
 COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["sh", "/entrypoint.sh"]
 
 # =========================

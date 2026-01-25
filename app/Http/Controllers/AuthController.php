@@ -53,7 +53,7 @@ class AuthController extends Controller
                 'name' => $request->get('name'),
                 'email' => $request->get('email'),
                 'password' => $password,
-                'is_active' => true
+                'is_active' => 'true'
             ];
 
             dispatch(new SendNewAccountMail($mailDetails));

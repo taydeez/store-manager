@@ -39,13 +39,13 @@ class AuthController extends Controller
         }
 
         try {
-
             $password = Str::random(8);
 
             $user = User::create([
                 'name' => $request->get('name'),
                 'email' => $request->get('email'),
                 'password' => Hash::make($password),
+                'is_active' => 'true'
             ]);
 
             $user->assignRole($request->get('role'));
@@ -54,12 +54,12 @@ class AuthController extends Controller
                 'name' => $request->get('name'),
                 'email' => $request->get('email'),
                 'password' => $password,
+                'is_active' => 'true'
             ];
 
             dispatch(new SendNewAccountMail($mailDetails));
 
             return ApiResponse::success(['message' => 'User created successfully'], 201);
-
         } catch (\Exception $e) {
             Log::error('Create user Error', ['exception' => $e->getMessage()]);
             return ApiResponse::error('An Error has occurred', 500);
@@ -83,7 +83,6 @@ class AuthController extends Controller
         }
 
         try {
-
             $user = User::where('id', $request->get('id'))->first();
 
             if (!empty($request->current_password)) {
@@ -105,7 +104,6 @@ class AuthController extends Controller
             $user->update($validator->validated());
 
             return ApiResponse::success(['message' => 'User updated successfully'], 201);
-
         } catch (\Exception $e) {
             Log::error('Update user Error', ['exception' => $e->getMessage()]);
             return ApiResponse::error('An Error has occurred', 500);
@@ -145,12 +143,10 @@ class AuthController extends Controller
 
     public function removeUser(Request $request)
     {
-
         try {
             $user = User::where('id', $request->get('id'))->first();
             $user->delete();
             return ApiResponse::success(['message' => 'User deleted successfully'], 201);
-
         } catch (\Exception $e) {
             Log::error('Delete user Error', ['exception' => $e->getMessage()]);
             return ApiResponse::error('An Error has occurred', 500);
@@ -168,7 +164,6 @@ class AuthController extends Controller
             Log::error('Get user Error', ['exception' => $e->getMessage()]);
             return ApiResponse::error('An Error has occurred', 500);
         }
-
     }
 
     public function logout()
@@ -183,7 +178,6 @@ class AuthController extends Controller
         $token = auth('api')->refresh();
 
         return $this->respondWithToken($token);
-
     }
 
     public function sendCode(Request $request)
@@ -214,7 +208,6 @@ class AuthController extends Controller
             Log::error('SendCode Error', ['exception' => $e->getMessage()]);
             return ApiResponse::error('An error occurred ', [], 500);
         }
-
     }
 
     public function verifyCode(Request $request)
